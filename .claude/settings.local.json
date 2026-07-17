@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__visualize__read_me",
+      "Bash(pnpm install *)",
+      "Bash(npm install *)",
+      "Read(//usr/local/bin/**)",
+      "Read(//Users/eneshoxha/.nvm/**)",
+      "Read(//Users/eneshoxha/.volta/**)",
+      "Bash(brew list *)",
+      "Bash(ls /opt/homebrew/bin/ | grep -E '^node|^npm|^pnpm')",
+      "Bash(brew install *)",
+      "Bash(pdftotext -layout \"/Users/eneshoxha/Desktop/frequent files/SuiHub Athens Event guidelines .pdf\" /private/tmp/guidelines.txt)",
+      "Read(//private/tmp/**)",
+      "Bash(pnpm add *)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pnpm dev *)",
+      "Bash(pnpm --dir /Users/eneshoxha/Downloads/sui-hub-athens-events-calendar-app dev)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/reserve)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/meeting-room)",
+      "Bash(curl -s -o /dev/null -w \"reserve: %{http_code}\\\\n\" http://localhost:3000/reserve)",
+      "Bash(curl -s -o /dev/null -w \"home: %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(python3 -)",
+      "Bash(curl -s -o /dev/null -w \"/reserve: %{http_code}\\\\n\" http://localhost:3000/reserve)",
+      "Bash(pandoc -t markdown \"/Users/eneshoxha/Downloads/Builder Growth Activation plan _ Handover Document.docx\")",
+      "Bash(pandoc -t plain \"/Users/eneshoxha/Downloads/Builder Growth Activation plan _ Handover Document.docx\")",
+      "Bash(rm -rf docx-unpacked)",
+      "Bash(mkdir docx-unpacked *)",
+      "Bash(unzip -q \"/Users/eneshoxha/Downloads/Builder Growth Activation plan _ Handover Document.docx\" -d docx-unpacked/)",
+      "Bash(pip3 install *)",
+      "Bash(python3 -c \"import openpyxl; print\\('ok', openpyxl.__version__\\)\")"
+    ]
+  }
+}

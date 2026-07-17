@@ -1,0 +1,69 @@
+import { Analytics } from '@vercel/analytics/next'
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
+import { Toaster } from '@/components/ui/sonner'
+import { SiteFooter } from '@/components/site-footer'
+import './globals.css'
+
+// Brand guideline: TWK Everett / ABC Camera are licensed — Inter is the
+// approved fallback typeface for headlines and body copy.
+const inter = Inter({
+  variable: '--font-inter',
+  subsets: ['latin'],
+})
+
+export const metadata: Metadata = {
+  title: 'SuiHub Events — Coworking Calendar',
+  description:
+    'Discover workshops, talks, socials and more happening at our coworking space every month.',
+  generator: 'v0.app',
+  icons: {
+    icon: [
+      {
+        url: '/icon-light-32x32.png',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        url: '/icon-dark-32x32.png',
+        media: '(prefers-color-scheme: dark)',
+      },
+      {
+        url: '/icon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+    apple: '/apple-icon.png',
+  },
+}
+
+export const viewport: Viewport = {
+  colorScheme: 'light',
+  themeColor: '#4DA2FF',
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html
+      lang="en"
+      className={`light ${inter.variable} bg-background`}
+    >
+      <body className="font-sans antialiased">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-0 bg-contain bg-center bg-no-repeat"
+          style={{ backgroundImage: 'url(/building-sketch.jpg)', opacity: 1 }}
+        />
+        <div className="relative z-10">
+          {children}
+          <SiteFooter />
+        </div>
+        <Toaster richColors position="top-center" />
+        {process.env.NODE_ENV === 'production' && <Analytics />}
+      </body>
+    </html>
+  )
+}
