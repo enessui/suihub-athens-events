@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { CalendarDays, Pencil, Plus, ShieldCheck, Trash2, UserPlus, X } from 'lucide-react'
+import { BarChart3, CalendarDays, Pencil, Plus, ShieldCheck, Trash2, UserPlus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -88,7 +88,16 @@ export function AdminDashboard({
           </Link>
           <div className="flex items-center gap-2">
             <Button
-              render={<Link href="/" />}
+              render={<Link href="/admin/analytics" />}
+              nativeButton={false}
+              variant="ghost"
+              size="sm"
+            >
+              <BarChart3 className="size-4" />
+              Analytics
+            </Button>
+            <Button
+              render={<Link href="/events" />}
               nativeButton={false}
               variant="ghost"
               size="sm"

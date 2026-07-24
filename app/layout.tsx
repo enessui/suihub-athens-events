@@ -13,7 +13,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'SuiHub Events — Coworking Calendar',
+  title: 'SuiHub Events · Coworking Calendar',
   description:
     'Discover workshops, talks, socials and more happening at our coworking space every month.',
   generator: 'v0.app',
@@ -52,11 +52,7 @@ export default function RootLayout({
       className={`light ${inter.variable} bg-background`}
     >
       <body className="font-sans antialiased">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-0 bg-contain bg-center bg-no-repeat"
-          style={{ backgroundImage: 'url(/building-sketch.jpg)', opacity: 1 }}
-        />
+        <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 bg-white" />
         <div className="relative z-10">
           {children}
           <SiteFooter />

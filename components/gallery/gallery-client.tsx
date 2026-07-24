@@ -248,7 +248,7 @@ export function GalleryClient({
           <DialogHeader>
             <DialogTitle>Submit your photos</DialogTitle>
             <DialogDescription>
-              Share your photos from SuiHub Athens events — they will be sent to the team for review before appearing in the gallery.
+              Share your photos from SuiHub Athens events. They will be sent to the team for review before appearing in the gallery.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmitOwn} className="flex flex-col gap-4">

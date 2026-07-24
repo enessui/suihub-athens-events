@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Clock, CheckCircle, Star, MapPin, HelpCircle, Pencil, Save, X, Plus, Trash2 } from 'lucide-react'
+import { Clock, CheckCircle, Star, MapPin, HelpCircle, Pencil, Save, X, Plus, Trash2, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { updateCoworking } from '@/app/coworking/actions'
+import { RegisterDialog } from '@/components/coworking/register-dialog'
 import type { CoworkingContent } from '@/lib/coworking'
 
 export function CoworkingClient({
@@ -109,18 +110,12 @@ export function CoworkingClient({
         {editing ? (
           <div className="flex flex-col gap-2">
             <Input value={draft.joinIntro} onChange={(e) => setField('joinIntro', e.target.value)} />
-            <Input value={draft.registerUrl} onChange={(e) => setField('registerUrl', e.target.value)} placeholder="Registration URL" />
             <Input value={draft.joinNote} onChange={(e) => setField('joinNote', e.target.value)} />
           </div>
         ) : (
           <>
             <p className="text-muted-foreground">{d.joinIntro}</p>
-            <a
-              href={d.registerUrl}
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
-            >
-              👉 Register here for free
-            </a>
+            <RegisterDialog />
             <p className="mt-4 text-sm text-muted-foreground">{d.joinNote}</p>
           </>
         )}
@@ -193,12 +188,18 @@ export function CoworkingClient({
             </Button>
           </div>
         ) : (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
             {d.faq.map(({ q, a }) => (
-              <div key={q}>
-                <p className="font-semibold">{q}</p>
-                <p className="mt-1 text-muted-foreground">{a}</p>
-              </div>
+              <details
+                key={q}
+                className="group rounded-lg border border-border px-4 py-3 [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-2 font-medium">
+                  {q}
+                  <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+                </summary>
+                <p className="mt-2 text-sm text-muted-foreground">{a}</p>
+              </details>
             ))}
           </div>
         )}

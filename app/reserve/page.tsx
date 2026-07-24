@@ -11,7 +11,7 @@ import { safe, isAdminSafe } from '@/lib/supabase/safe'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Visit Us — SuiHub Athens',
+  title: 'Visit Us · SuiHub Athens',
   description: 'Check in or reserve your coworking spot at SuiHub Athens.',
 }
 
@@ -45,20 +45,20 @@ export default async function ReservePage({
   return (
     <main className="min-h-svh">
       <SiteHeader pathname="/reserve" />
-      <div className="mx-auto max-w-4xl px-4 py-10 md:px-6 md:py-14">
+      <div className="mx-auto max-w-4xl px-4 md:px-6 py-10 md:py-14">
         <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-sm px-6 py-8 md:px-10 md:py-10">
           <Link
-            href="/"
+            href="/events"
             className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="size-4" />
-            Back to calendar
+            Back to events
           </Link>
 
           <div className="mb-10">
             <h1 className="text-4xl font-bold tracking-tight">Plan your visit</h1>
             <p className="mt-3 text-muted-foreground">
-              Free coworking, walk-ins always welcome. Check in when you arrive — and book
+              Free coworking, walk-ins always welcome. Check in when you arrive, and book
               the private meeting room if you need one.
             </p>
           </div>

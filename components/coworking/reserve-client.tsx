@@ -183,9 +183,9 @@ export function ReserveClient({
 
                   {/* Slot */}
                   {taken ? (
-                    <div className="flex flex-1 items-center justify-between gap-2 bg-primary/10 px-4 py-4">
+                    <div className="flex flex-1 items-center justify-between gap-2 bg-red-500/10 px-4 py-4">
                       <div className="min-w-0">
-                        <p className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+                        <p className="flex items-center gap-1.5 text-sm font-semibold text-red-600">
                           <Lock className="size-3.5 shrink-0" />
                           Reserved
                         </p>

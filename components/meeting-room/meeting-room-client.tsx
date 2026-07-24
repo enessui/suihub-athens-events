@@ -117,7 +117,7 @@ export function MeetingRoomClient({
               onClick={() => setSelectedHour(hour)}
               className={`flex items-center justify-between gap-2 rounded-xl border px-4 py-3 text-sm transition-all ${
                 taken
-                  ? 'cursor-not-allowed border-border bg-muted/50 text-muted-foreground'
+                  ? 'cursor-not-allowed border-red-500/40 bg-red-500/10 text-red-600'
                   : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 hover:shadow-sm'
               }`}
             >
@@ -147,7 +147,7 @@ export function MeetingRoomClient({
               <li key={b.id} className="flex items-center justify-between gap-2 text-sm">
                 <span>
                   <span className="font-medium">{formatHour(b.hour)}</span>
-                  {' — '}
+                  {' · '}
                   {b.name} ({b.email}){b.topic ? ` · ${b.topic}` : ''}
                 </span>
                 <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleCancel(b)} disabled={isPending}>

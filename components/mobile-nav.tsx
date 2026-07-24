@@ -6,7 +6,8 @@ import { Menu, X } from 'lucide-react'
 import { RequestEventButton } from '@/components/calendar/request-event-button'
 
 const LINKS = [
-  
+  { href: '/', label: 'About' },
+  { href: '/events', label: 'Events' },
   { href: '/reserve', label: 'Visit us' },
   { href: '/coworking', label: 'Coworking' },
   { href: '/guidelines', label: 'Guidelines' },

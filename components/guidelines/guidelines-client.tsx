@@ -89,7 +89,7 @@ export function GuidelinesClient({
       {isAdmin && (
         <div className="flex items-center gap-2 rounded-lg border border-dashed border-primary/40 bg-primary/5 px-4 py-3">
           <Pencil className="size-4 text-primary" />
-          <span className="text-sm text-primary font-medium flex-1">Admin — you can edit this page</span>
+          <span className="text-sm text-primary font-medium flex-1">Admin · you can edit this page</span>
           {editing ? (
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={cancel} disabled={isPending}>Cancel</Button>

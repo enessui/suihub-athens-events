@@ -5,7 +5,7 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
     <main className="flex min-h-svh flex-col items-center justify-center gap-4 px-6 text-center">
       <h1 className="text-2xl font-bold tracking-tight">Something went wrong</h1>
       <p className="max-w-md text-muted-foreground">
-        We couldn&apos;t load this page — the service may be temporarily unavailable.
+        We couldn&apos;t load this page. The service may be temporarily unavailable.
         Please try again in a moment.
       </p>
       <button

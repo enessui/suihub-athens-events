@@ -62,23 +62,23 @@ h1, h2, h3 {
   /* SuiHub Brand Guidelines v2.1
      Primary: Sea #4DA2FF · Deep Ocean #030F1C · Aqua #C0E6FF · Cloud #FFFFFF
      Greyscale: Concrete 700 #91A3B1 · 500 #ABBDCC · 100 #F5F8FA · 50 #F7F7F8 */
-  --background: #f5f8fa;            /* Concrete 100 */
-  --foreground: #030f1c;            /* Deep Ocean */
-  --card: #ffffff;                  /* Cloud */
+  --background: #ffffff;            /* white backdrop / side margins */
+  --foreground: #030f1c;           /* Deep Ocean */
+  --card: #ffffff;                 /* Cloud */
   --card-foreground: #030f1c;
   --popover: #ffffff;
   --popover-foreground: #030f1c;
-  --primary: #4da2ff;               /* Sea */
+  --primary: #4da2ff;              /* Sea */
   --primary-foreground: #ffffff;
-  --secondary: #c0e6ff;             /* Aqua */
+  --secondary: #c0e6ff;            /* Aqua */
   --secondary-foreground: #030f1c;
-  --muted: #f7f7f8;                 /* Concrete 50 */
-  --muted-foreground: #91a3b1;      /* Concrete 700 */
-  --accent: #c0e6ff;                /* Aqua */
+  --muted: #f4f7fa;
+  --muted-foreground: #6b7c8c;
+  --accent: #c0e6ff;               /* Aqua */
   --accent-foreground: #030f1c;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #dde5ec;
-  --input: #dde5ec;
+  --border: #9fc7f2;               /* soft Sea-blue border */
+  --input: #cddff2;
   --ring: #4da2ff;
   --chart-1: #4da2ff;
   --chart-2: #abbdcc;
@@ -178,4 +178,34 @@ h1, h2, h3 {
   html {
     @apply font-sans;
   }
+}
+
+/* Animated shimmer for the word "Athens" in the hero */
+.athens-shimmer {
+  background: linear-gradient(90deg, #4da2ff 0%, #c0e6ff 25%, #4da2ff 50%, #c0e6ff 75%, #4da2ff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: athens-shimmer 3.5s linear infinite;
+}
+@keyframes athens-shimmer {
+  to { background-position: -200% center; }
+}
+
+/* Stock-ticker style scrolling announcement banner */
+.ticker-track {
+  display: flex;
+  width: max-content;
+  flex-wrap: nowrap;
+  will-change: transform;
+  animation: ticker-scroll 40s linear infinite;
+}
+.ticker-mask:hover .ticker-track {
+  animation-play-state: paused;
+}
+@keyframes ticker-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
 }

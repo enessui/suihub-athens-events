@@ -24,7 +24,7 @@ export default function CheckinQrPage() {
         className="object-contain"
       />
       <h1 className="text-4xl font-bold tracking-tight text-[#030F1C]">
-        Welcome in — check in here
+        Welcome in, check in here
       </h1>
       <p className="max-w-md text-lg text-[#91A3B1]">
         Scan to check in. Free coworking, walk-ins always welcome.

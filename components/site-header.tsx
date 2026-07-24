@@ -5,14 +5,19 @@ import { Button } from '@/components/ui/button'
 import { isAdminSafe } from '@/lib/supabase/safe'
 import { RequestEventButton } from '@/components/calendar/request-event-button'
 import { MobileNav } from '@/components/mobile-nav'
+import { AnnouncementBanner } from '@/components/announcement-banner'
 import { PreviewBanner } from '@/components/preview-banner'
 import { isPreviewMode } from '@/lib/preview-mode'
 import { enablePreviewMode } from '@/app/preview/actions'
+import { getAnnouncement } from '@/app/announcement/actions'
+import { safe } from '@/lib/supabase/safe'
+import { DEFAULT_ANNOUNCEMENT } from '@/lib/announcement'
 
 export async function SiteHeader({ pathname = '/' }: { pathname?: string }) {
   const trueAdmin = await isAdminSafe()
   const preview = await isPreviewMode()
   const isAdmin = trueAdmin && !preview
+  const announcement = await safe(getAnnouncement, DEFAULT_ANNOUNCEMENT)
 
   return (
     <>
@@ -43,6 +48,15 @@ export async function SiteHeader({ pathname = '/' }: { pathname?: string }) {
               className="bg-white text-[#030F1C] hover:bg-white/90"
             >
               Visit us
+            </Button>
+            <Button
+              render={<Link href="/events" />}
+              nativeButton={false}
+              variant="ghost"
+              size="sm"
+              className="text-white/80 hover:text-white hover:bg-white/10"
+            >
+              Events
             </Button>
             <Button
               render={<Link href="/coworking" />}
@@ -82,6 +96,7 @@ export async function SiteHeader({ pathname = '/' }: { pathname?: string }) {
           </div>
         </div>
       </header>
+      <AnnouncementBanner content={announcement} isAdmin={isAdmin} />
       {preview && trueAdmin && <PreviewBanner />}
       {isAdmin && (
         <div className="fixed bottom-6 right-6 z-40">

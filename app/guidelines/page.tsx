@@ -10,7 +10,7 @@ import { safe, isAdminSafe } from '@/lib/supabase/safe'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Event Guidelines — SuiHub Athens',
+  title: 'Event Guidelines · SuiHub Athens',
   description: 'Space guidelines for hosting events at SuiHub Athens.',
 }
 
@@ -23,14 +23,14 @@ export default async function GuidelinesPage() {
   return (
     <main className="min-h-svh">
       <SiteHeader pathname="/guidelines" />
-      <div className="mx-auto max-w-3xl px-4 py-10 md:px-6 md:py-14">
+      <div className="mx-auto max-w-3xl px-4 md:px-6 py-10 md:py-14">
         <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-sm px-6 py-8 md:px-10 md:py-10">
           <Link
-            href="/"
+            href="/events"
             className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="size-4" />
-            Back to calendar
+            Back to events
           </Link>
 
           <div className="mb-10">

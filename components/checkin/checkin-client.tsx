@@ -56,7 +56,7 @@ export function CheckinClient({
       setSaved({ name, email })
       setDone(true)
       if (result?.alreadyCheckedIn) {
-        toast.info('You were already checked in today — see you around!')
+        toast.info('You were already checked in today. See you around!')
       } else {
         toast.success('Checked in. Welcome!')
         setCount(await getTodayCount())

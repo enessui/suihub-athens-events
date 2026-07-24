@@ -11,7 +11,7 @@ export function PreviewBanner() {
     <div className="fixed bottom-0 inset-x-0 z-50 flex items-center justify-between gap-4 bg-amber-500 px-4 py-2.5 text-sm font-medium text-amber-950 shadow-lg">
       <span className="flex items-center gap-2">
         <Eye className="size-4 shrink-0" />
-        Preview mode — you are seeing the site as a visitor
+        Preview mode · you are seeing the site as a visitor
       </span>
       <form action={disablePreviewMode.bind(null, pathname)}>
         <button

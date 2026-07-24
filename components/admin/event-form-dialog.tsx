@@ -90,7 +90,7 @@ export function EventFormDialog({
         // Use the pasted link as the registration link
         setRegistrationType('open')
         setTimeout(() => setField('registration_link', importUrl.trim()), 0)
-        toast.success('Event details imported — review and save.')
+        toast.success('Event details imported. Review and save.')
       })
       .catch(() => toast.error('Could not import from that link.'))
       .finally(() => setImporting(false))
@@ -255,7 +255,7 @@ export function EventFormDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="open">Open — registration link</SelectItem>
+                <SelectItem value="open">Open (registration link)</SelectItem>
                 <SelectItem value="invite-only">Invite only</SelectItem>
               </SelectContent>
             </Select>
@@ -294,7 +294,7 @@ export function EventFormDialog({
                 <div className="min-w-0 flex-1 text-xs text-muted-foreground">
                   {isEdit && event?.image_url === importedImage
                     ? 'Current cover image.'
-                    : 'Imported cover image — used unless you upload a new one below.'}
+                    : 'Imported cover image, used unless you upload a new one below.'}
                 </div>
                 <Button
                   type="button"
@@ -312,7 +312,7 @@ export function EventFormDialog({
                 ? 'Upload a file to replace the image above.'
                 : isEdit && event?.image_url
                   ? 'Leave empty to keep the current image.'
-                  : 'Optional — or import one from a Luma/Meetup link above.'}
+                  : 'Optional, or import one from a Luma/Meetup link above.'}
             </p>
           </div>
 

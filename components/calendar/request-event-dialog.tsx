@@ -110,7 +110,7 @@ export function RequestEventDialog({
               id="req-description"
               name="description"
               rows={4}
-              placeholder="Tell us about the event — topic, format, goals…"
+              placeholder="Tell us about the event: topic, format, goals…"
             />
           </div>
 

@@ -1,39 +1,31 @@
-import { createClient } from '@/lib/supabase/server'
 import { SiteHeader } from '@/components/site-header'
-import { CalendarView } from '@/components/calendar/calendar-view'
+import { AboutClient } from '@/components/about/about-client'
+import { getAbout } from '@/app/about/actions'
+import { getMemberCount } from '@/app/coworking/register-actions'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
 import { safe, isAdminSafe } from '@/lib/supabase/safe'
-import type { EventRow } from '@/lib/events'
+import { DEFAULT_ABOUT } from '@/lib/about'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'SuiHub Athens - Main Page',
+  title: 'SuiHub Athens · The home of builders',
+  description:
+    'SuiHub Athens is the biggest SuiHub in the world, a free, open coworking space and event hub for developers, creators, and builders. Powered by Sui.',
 }
 
-export default async function HomePage() {
-  const [events, trueAdmin] = await Promise.all([
-    safe(async () => {
-      const supabase = await createClient()
-      const { data } = await supabase
-        .from('events')
-        .select('*')
-        .order('start_time', { ascending: true })
-      return (data ?? []) as EventRow[]
-    }, [] as EventRow[]),
+export default async function AboutPage() {
+  const [content, trueAdmin, memberCount] = await Promise.all([
+    safe(getAbout, DEFAULT_ABOUT),
     isAdminSafe(),
+    safe(getMemberCount, 0),
   ])
-
   const isAdmin = await getEffectiveIsAdmin(trueAdmin)
 
   return (
     <main className="min-h-svh">
       <SiteHeader pathname="/" />
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-10">
-        <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-sm px-6 py-8 md:px-8 md:py-10">
-          <CalendarView events={events} isAdmin={isAdmin} />
-        </div>
-      </div>
+      <AboutClient content={content} isAdmin={isAdmin} memberCount={memberCount} />
     </main>
   )
 }
