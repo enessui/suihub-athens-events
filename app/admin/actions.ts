@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { spaceInputToUtc } from '@/lib/events'
 
 type ActionResult = { error?: string }
 
@@ -57,8 +58,8 @@ function parseForm(formData: FormData) {
     room: ((formData.get('room') as string) || '').trim() || null,
     industry: ((formData.get('industry') as string) || '').trim() || null,
     registration_link,
-    start_time: start ? new Date(start).toISOString() : null,
-    end_time: end ? new Date(end).toISOString() : null,
+    start_time: spaceInputToUtc(start),
+    end_time: spaceInputToUtc(end),
   }
 }
 

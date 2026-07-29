@@ -75,6 +75,54 @@ export function categoryStyle(category: string): string {
 // always render identical strings (no hydration mismatch).
 export const SPACE_TIME_ZONE = 'Europe/Athens'
 
+// A datetime-local input carries no timezone. We always treat its value as
+// wall-clock time in SPACE_TIME_ZONE, independent of where the server or browser
+// runs. Otherwise a UTC server (e.g. Vercel) and an Athens browser disagree, and
+// every save/reload shifts the stored time by the Athens offset (+2h / +3h).
+
+// Stored UTC instant -> "YYYY-MM-DDTHH:mm" wall time for a datetime-local input.
+export function utcToSpaceInput(iso: string | null): string {
+  if (!iso) return ''
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: SPACE_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date(iso))
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? ''
+  const hour = get('hour') === '24' ? '00' : get('hour')
+  return `${get('year')}-${get('month')}-${get('day')}T${hour}:${get('minute')}`
+}
+
+// "YYYY-MM-DDTHH:mm" wall time (in SPACE_TIME_ZONE) -> UTC ISO string.
+export function spaceInputToUtc(local: string | null): string | null {
+  if (!local) return null
+  const [datePart, timePart] = local.split('T')
+  if (!datePart || !timePart) return null
+  const [y, mo, d] = datePart.split('-').map(Number)
+  const [h, mi] = timePart.split(':').map(Number)
+  // Guess a UTC instant with the same wall-clock numbers, then measure how far
+  // the space timezone sits from UTC at that instant and correct for it.
+  const guess = Date.UTC(y, mo - 1, d, h, mi)
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: SPACE_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date(guess))
+  const g = (t: string) => Number(parts.find((p) => p.type === t)?.value)
+  const gh = g('hour') === 24 ? 0 : g('hour')
+  const zoned = Date.UTC(g('year'), g('month') - 1, g('day'), gh, g('minute'))
+  const offset = zoned - guess // space-zone offset from UTC, in ms
+  return new Date(guess - offset).toISOString()
+}
+
 export function formatEventTime(start: string, end: string | null): string {
   const opts: Intl.DateTimeFormatOptions = {
     hour: 'numeric',

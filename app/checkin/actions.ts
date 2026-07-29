@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyTurnstile } from '@/lib/turnstile'
 
 export type CheckinEntry = {
   id: string
@@ -77,12 +78,16 @@ export async function getTodayCount(): Promise<number> {
 export async function checkIn(input: {
   name: string
   email: string
+  captchaToken?: string
 }): Promise<{ error?: string; alreadyCheckedIn?: boolean }> {
   const name = input.name.trim()
   const email = input.email.trim().toLowerCase()
 
   if (!name) return { error: 'Please enter your name.' }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Please enter a valid email.' }
+  if (!(await verifyTurnstile(input.captchaToken))) {
+    return { error: 'Captcha verification failed. Please try again.' }
+  }
 
   const admin = createAdminClient()
   const { error } = await admin.from('coworking_checkins').insert({

@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notifyAdmin, emailShell, emailRow } from '@/lib/notify'
+import { verifyTurnstile } from '@/lib/turnstile'
 
 export type MemberInput = {
   name: string
@@ -10,6 +11,7 @@ export type MemberInput = {
   telegram: string
   building: string
   subscribe: boolean
+  captchaToken?: string
 }
 
 export async function registerMember(
@@ -22,6 +24,9 @@ export async function registerMember(
 
   if (!name) return { error: 'Please enter your name.' }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Please enter a valid email.' }
+  if (!(await verifyTurnstile(input.captchaToken))) {
+    return { error: 'Captcha verification failed. Please try again.' }
+  }
 
   const admin = createAdminClient()
   const { error } = await admin.from('coworking_members').insert({

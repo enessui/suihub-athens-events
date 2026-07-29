@@ -119,9 +119,9 @@ export function AboutClient({
       </section>
 
       {/* Stats */}
-      <section className="mt-8 grid grid-cols-3 gap-3">
+      <section className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
         {d.stats.map((s, i) => (
-          <div key={i} className={`${CARD} p-5 text-center`}>
+          <div key={i} className={`${CARD} p-3 text-center sm:p-5`}>
             {editing ? (
               <div className="flex flex-col gap-1">
                 <Input className="text-center text-lg font-bold" value={draft.stats[i]?.value ?? ''} onChange={(e) => set('stats', draft.stats.map((x, j) => j === i ? { ...x, value: e.target.value } : x))} />
@@ -129,8 +129,8 @@ export function AboutClient({
               </div>
             ) : (
               <>
-                <p className="text-3xl font-bold text-primary md:text-4xl">{s.value}</p>
-                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{s.label}</p>
+                <p className="text-[clamp(1.15rem,5.5vw,2.25rem)] font-bold leading-none tracking-tight text-primary">{s.value}</p>
+                <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">{s.label}</p>
               </>
             )}
           </div>

@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { CheckCircle2, Trophy, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Turnstile, captchaEnabled, type TurnstileHandle } from '@/components/turnstile'
 import { checkIn, getTodayCount, type CheckinEntry, type DailyCount, type LeaderboardEntry } from '@/app/checkin/actions'
 
 const STORAGE_KEY = 'suihub-checkin-identity'
@@ -30,6 +31,8 @@ export function CheckinClient({
   const [editing, setEditing] = useState(false)
   const [done, setDone] = useState(false)
   const [board, setBoard] = useState<'month' | 'all'>('month')
+  const [captchaToken, setCaptchaToken] = useState('')
+  const turnstileRef = useRef<TurnstileHandle>(null)
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
@@ -43,9 +46,11 @@ export function CheckinClient({
 
   function doCheckIn(name: string, email: string) {
     startTransition(async () => {
-      const result = await checkIn({ name, email })
+      const result = await checkIn({ name, email, captchaToken })
       if (result?.error) {
         toast.error(result.error)
+        setCaptchaToken('')
+        turnstileRef.current?.reset()
         return
       }
       try {
@@ -96,10 +101,19 @@ export function CheckinClient({
           <p className="text-lg">
             Welcome back, <span className="font-semibold">{saved.name.split(' ')[0]}</span>!
           </p>
+          {captchaEnabled && (
+            <Turnstile
+              ref={turnstileRef}
+              onVerify={setCaptchaToken}
+              onExpire={() => setCaptchaToken('')}
+              onError={() => setCaptchaToken('')}
+              className="w-full max-w-xs"
+            />
+          )}
           <Button
             size="lg"
             className="px-10 text-base"
-            disabled={isPending}
+            disabled={isPending || (captchaEnabled && !captchaToken)}
             onClick={() => doCheckIn(saved.name, saved.email)}
           >
             {isPending ? 'Checking in…' : 'Check in'}
@@ -122,7 +136,13 @@ export function CheckinClient({
             <Label htmlFor="ci-email">Email</Label>
             <Input id="ci-email" name="email" type="email" required placeholder="jane@example.com" defaultValue={editing ? '' : saved?.email ?? ''} />
           </div>
-          <Button type="submit" size="lg" disabled={isPending}>
+          <Turnstile
+            ref={turnstileRef}
+            onVerify={setCaptchaToken}
+            onExpire={() => setCaptchaToken('')}
+            onError={() => setCaptchaToken('')}
+          />
+          <Button type="submit" size="lg" disabled={isPending || (captchaEnabled && !captchaToken)}>
             {isPending ? 'Checking in…' : 'Check in'}
           </Button>
           <p className="text-xs text-muted-foreground">

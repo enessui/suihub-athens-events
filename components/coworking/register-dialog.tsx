@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Turnstile, captchaEnabled, type TurnstileHandle } from '@/components/turnstile'
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,14 @@ import { registerMember } from '@/app/coworking/register-actions'
 export function RegisterDialog() {
   const [open, setOpen] = useState(false)
   const [done, setDone] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const turnstileRef = useRef<TurnstileHandle>(null)
   const [isPending, startTransition] = useTransition()
+
+  function resetCaptcha() {
+    setCaptchaToken('')
+    turnstileRef.current?.reset()
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -31,9 +39,11 @@ export function RegisterDialog() {
         telegram: (fd.get('telegram') as string) ?? '',
         building: (fd.get('building') as string) ?? '',
         subscribe: fd.get('subscribe') === 'on',
+        captchaToken,
       })
       if (result?.error) {
         toast.error(result.error)
+        resetCaptcha()
         return
       }
       if (result?.alreadyRegistered) {
@@ -107,11 +117,17 @@ export function RegisterDialog() {
                   />
                   <span>Keep me posted on events, workshops, and hub news.</span>
                 </label>
+                <Turnstile
+                  ref={turnstileRef}
+                  onVerify={setCaptchaToken}
+                  onExpire={() => setCaptchaToken('')}
+                  onError={() => setCaptchaToken('')}
+                />
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isPending}>
+                  <Button type="submit" disabled={isPending || (captchaEnabled && !captchaToken)}>
                     {isPending ? 'Registering…' : 'Register'}
                   </Button>
                 </DialogFooter>

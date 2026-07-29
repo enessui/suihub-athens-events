@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { notifyAdmin, emailShell, emailRow } from '@/lib/notify'
+import { verifyTurnstile } from '@/lib/turnstile'
 
 export type EventRequestInput = {
   title: string
@@ -12,11 +13,16 @@ export type EventRequestInput = {
   host_name: string
   host_email: string
   registration_link: string
+  captchaToken?: string
 }
 
 export async function submitEventRequest(
   input: EventRequestInput,
 ): Promise<{ error?: string }> {
+  if (!(await verifyTurnstile(input.captchaToken))) {
+    return { error: 'Captcha verification failed. Please try again.' }
+  }
+
   const supabase = await createClient()
 
   const { error: dbError } = await supabase.from('event_requests').insert({

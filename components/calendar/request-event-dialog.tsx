@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { Turnstile, captchaEnabled, type TurnstileHandle } from '@/components/turnstile'
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,8 @@ export function RequestEventDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const [category, setCategory] = useState('Workshop')
+  const [captchaToken, setCaptchaToken] = useState('')
+  const turnstileRef = useRef<TurnstileHandle>(null)
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -49,10 +52,13 @@ export function RequestEventDialog({
         host_name: data.get('host_name') as string,
         host_email: data.get('host_email') as string,
         registration_link: data.get('registration_link') as string,
+        captchaToken,
       })
 
       if (result?.error) {
         toast.error(result.error)
+        setCaptchaToken('')
+        turnstileRef.current?.reset()
         return
       }
 
@@ -60,6 +66,8 @@ export function RequestEventDialog({
       onOpenChange(false)
       form.reset()
       setCategory('Workshop')
+      setCaptchaToken('')
+      turnstileRef.current?.reset()
     })
   }
 
@@ -138,11 +146,18 @@ export function RequestEventDialog({
             </div>
           </div>
 
+          <Turnstile
+            ref={turnstileRef}
+            onVerify={setCaptchaToken}
+            onExpire={() => setCaptchaToken('')}
+            onError={() => setCaptchaToken('')}
+          />
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button type="submit" disabled={isPending || (captchaEnabled && !captchaToken)} className="bg-primary hover:bg-primary/90 text-primary-foreground">
               {isPending ? 'Submitting…' : 'Submit request'}
             </Button>
           </DialogFooter>

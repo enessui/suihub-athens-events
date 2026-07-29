@@ -28,17 +28,9 @@ import {
   EVENT_CATEGORIES,
   isInviteOnly,
   registrationUrl,
+  utcToSpaceInput,
   type EventRow,
 } from '@/lib/events'
-
-// Convert an ISO string to the value format datetime-local expects (local time).
-function toLocalInput(iso: string | null): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  const off = d.getTimezoneOffset()
-  const local = new Date(d.getTime() - off * 60000)
-  return local.toISOString().slice(0, 16)
-}
 
 export function EventFormDialog({
   open,
@@ -81,8 +73,8 @@ export function EventFormDialog({
         }
         const d = res.data
         if (d.title) setField('title', d.title)
-        if (d.start_time) setField('start_time', toLocalInput(d.start_time))
-        if (d.end_time) setField('end_time', toLocalInput(d.end_time))
+        if (d.start_time) setField('start_time', utcToSpaceInput(d.start_time))
+        if (d.end_time) setField('end_time', utcToSpaceInput(d.end_time))
         if (d.description) setField('description', d.description)
         if (d.room) setField('room', d.room)
         if (d.host) setField('host', d.host)
@@ -198,7 +190,7 @@ export function EventFormDialog({
                 name="start_time"
                 type="datetime-local"
                 required
-                defaultValue={toLocalInput(event?.start_time ?? null) || defaultDate || ''}
+                defaultValue={utcToSpaceInput(event?.start_time ?? null) || defaultDate || ''}
               />
             </div>
             <div className="grid gap-2">
@@ -207,7 +199,7 @@ export function EventFormDialog({
                 id="end_time"
                 name="end_time"
                 type="datetime-local"
-                defaultValue={toLocalInput(event?.end_time ?? null)}
+                defaultValue={utcToSpaceInput(event?.end_time ?? null)}
               />
             </div>
           </div>
