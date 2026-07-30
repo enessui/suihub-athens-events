@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { escapeHtml } from '@/lib/notify'
 
 export type GalleryImage = {
   id: string
@@ -86,6 +87,10 @@ export async function submitVisitorPhotos(
     })),
   )
 
+  const safeName = escapeHtml(name)
+  const safeEmail = escapeHtml(email)
+  const safeNote = escapeHtml(note)
+
   try {
     const resend = new Resend(process.env.RESEND_API_KEY)
     const { error } = await resend.emails.send({
@@ -97,14 +102,14 @@ export async function submitVisitorPhotos(
           <h2 style="margin-bottom: 4px;">Gallery Photo Submission</h2>
           <p style="color: #888; margin-top: 0;">Submitted via SuiHub Athens Gallery</p>
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-            <tr><td style="padding: 8px 0; color: #666; width: 140px;">Name</td><td style="padding: 8px 0; font-weight: 600;">${name}</td></tr>
-            <tr><td style="padding: 8px 0; color: #666;">Email</td><td style="padding: 8px 0;"><a href="mailto:${email}">${email}</a></td></tr>
+            <tr><td style="padding: 8px 0; color: #666; width: 140px;">Name</td><td style="padding: 8px 0; font-weight: 600;">${safeName}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Email</td><td style="padding: 8px 0;"><a href="mailto:${safeEmail}">${safeEmail}</a></td></tr>
             <tr><td style="padding: 8px 0; color: #666;">Photos</td><td style="padding: 8px 0;">${files.length} attached</td></tr>
           </table>
-          ${note ? `
+          ${safeNote ? `
           <div style="margin-top: 20px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
             <p style="margin: 0 0 8px; font-weight: 600;">Note</p>
-            <p style="margin: 0; color: #444; white-space: pre-line;">${note}</p>
+            <p style="margin: 0; color: #444; white-space: pre-line;">${safeNote}</p>
           </div>` : ''}
         </div>
       `,

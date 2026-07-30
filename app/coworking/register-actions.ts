@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { notifyAdmin, emailShell, emailRow } from '@/lib/notify'
+import { notifyAdmin, emailShell, emailRow, emailLinkRow } from '@/lib/notify'
 import { verifyTurnstile } from '@/lib/turnstile'
 
 export type MemberInput = {
@@ -60,7 +60,7 @@ export async function registerMember(
       'New Coworking Registration',
       'Someone just registered for free coworking at SuiHub Athens.',
       emailRow('Name', name) +
-        emailRow('Email', `<a href="mailto:${email}">${email}</a>`) +
+        emailLinkRow('Email', `mailto:${email}`, email) +
         emailRow('Telegram', telegram ? `@${telegram}` : '') +
         emailRow('Building', building ?? '') +
         emailRow('Newsletter', input.subscribe ? 'Opted in' : 'No'),

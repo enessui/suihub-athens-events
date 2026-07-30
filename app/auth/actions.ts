@@ -22,8 +22,8 @@ export async function registerAdmin(
   if (!EMAIL_RE.test(normalizedEmail)) {
     return { error: 'Please enter a valid email address.' }
   }
-  if (password.length < 6) {
-    return { error: 'Password must be at least 6 characters.' }
+  if (password.length < 12) {
+    return { error: 'Password must be at least 12 characters.' }
   }
 
   // Gate registration through the public RPC (bootstrap or invited only).

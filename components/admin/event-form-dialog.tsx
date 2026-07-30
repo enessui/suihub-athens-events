@@ -168,7 +168,7 @@ export function EventFormDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="category">Category</Label>
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category} onValueChange={(v) => v && setCategory(v)}>
               <SelectTrigger id="category">
                 <SelectValue />
               </SelectTrigger>

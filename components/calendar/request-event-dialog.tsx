@@ -89,7 +89,7 @@ export function RequestEventDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="req-category">Category</Label>
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category} onValueChange={(v) => v && setCategory(v)}>
               <SelectTrigger id="req-category">
                 <SelectValue />
               </SelectTrigger>

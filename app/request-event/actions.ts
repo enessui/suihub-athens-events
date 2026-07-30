@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { notifyAdmin, emailShell, emailRow } from '@/lib/notify'
+import { notifyAdmin, emailShell, emailRow, emailLinkRow } from '@/lib/notify'
 import { verifyTurnstile } from '@/lib/turnstile'
 
 export type EventRequestInput = {
@@ -48,9 +48,9 @@ export async function submitEventRequest(
         emailRow('Preferred date', input.preferred_date) +
         emailRow('Expected attendance', input.estimated_attendance) +
         emailRow('Organizer', input.host_name) +
-        emailRow('Contact email', `<a href="mailto:${input.host_email}">${input.host_email}</a>`) +
-        emailRow('Registration link', input.registration_link ? `<a href="${input.registration_link}">${input.registration_link}</a>` : '') +
-        emailRow('Description', input.description ? input.description.replace(/\n/g, '<br>') : ''),
+        emailLinkRow('Contact email', `mailto:${input.host_email}`, input.host_email) +
+        (input.registration_link ? emailLinkRow('Registration link', input.registration_link) : '') +
+        emailRow('Description', input.description ?? ''),
     ),
   )
 

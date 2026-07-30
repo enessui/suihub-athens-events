@@ -35,10 +35,18 @@ export function isInviteOnly(link: string | null): boolean {
   return link === INVITE_ONLY
 }
 
-// A real registration URL, or null for invite-only / no link.
+// A real registration URL, or null for invite-only / no link. Only http(s)
+// links are returned so a stored javascript:/data: value can't become a
+// clickable href on the public event dialog.
 export function registrationUrl(link: string | null): string | null {
   if (!link || link === INVITE_ONLY) return null
-  return link
+  try {
+    const u = new URL(link)
+    if (u.protocol === 'http:' || u.protocol === 'https:') return link
+  } catch {
+    // not an absolute URL
+  }
+  return null
 }
 
 export const EVENT_CATEGORIES = [

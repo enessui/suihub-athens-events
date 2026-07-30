@@ -1,6 +1,44 @@
 'use server'
 
+import { lookup } from 'node:dns/promises'
+import net from 'node:net'
 import { createClient } from '@/lib/supabase/server'
+
+// Block requests that resolve to private / loopback / link-local ranges, so an
+// attacker-controlled image URL on an imported page can't reach internal
+// services (SSRF), e.g. the cloud metadata endpoint.
+function isPrivateAddress(ip: string): boolean {
+  if (net.isIP(ip) === 4) {
+    const p = ip.split('.').map(Number)
+    return (
+      p[0] === 0 ||
+      p[0] === 10 ||
+      p[0] === 127 ||
+      (p[0] === 169 && p[1] === 254) ||
+      (p[0] === 172 && p[1] >= 16 && p[1] <= 31) ||
+      (p[0] === 192 && p[1] === 168)
+    )
+  }
+  const v6 = ip.toLowerCase()
+  return v6 === '::1' || v6 === '::' || v6.startsWith('fe80') || v6.startsWith('fc') || v6.startsWith('fd')
+}
+
+// True only for an https URL whose host resolves to a public address.
+async function isSafeRemoteImageUrl(raw: string): Promise<boolean> {
+  let u: URL
+  try {
+    u = new URL(raw)
+  } catch {
+    return false
+  }
+  if (u.protocol !== 'https:' && u.protocol !== 'http:') return false
+  try {
+    const { address } = await lookup(u.hostname)
+    return !isPrivateAddress(address)
+  } catch {
+    return false
+  }
+}
 
 export type ImportedEvent = {
   title?: string
@@ -144,6 +182,7 @@ async function rehostImage(
   url: string,
 ): Promise<string | null> {
   try {
+    if (!(await isSafeRemoteImageUrl(url))) return null
     const res = await fetch(url)
     if (!res.ok) return null
     const type = res.headers.get('content-type') || 'image/jpeg'
