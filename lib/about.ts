@@ -11,7 +11,7 @@ export type AboutContent = {
 export const DEFAULT_ABOUT: AboutContent = {
   heroTitle: 'The home of builders in Athens.',
   heroIntro:
-    'SuiHub Athens is the biggest SuiHub in the world, a space for developers, creators, and builders to connect, learn, create, and accelerate their biggest ideas. Powered by Sui.',
+    'SuiHub Athens is the biggest SuiHub in the world, a space for developers, creators, and builders to connect, learn, create, and accelerate their biggest ideas. Powered by Sui. To learn more about crypto’s leading layer-1 blockchain, visit sui.io.',
   videoUrl: 'WTG1gtilnUs',
   stats: [
     { value: '80+', label: 'Events hosted' },
@@ -39,7 +39,7 @@ export const DEFAULT_ABOUT: AboutContent = {
   timeline: [
     { date: 'Spring 2024', text: '12 months of complete renovation of a monumental space begins.' },
     { date: 'March 11, 2025', text: 'SuiHub Athens opens its doors.' },
-    { date: 'June 2025', text: 'Three months in, SuiHub has already hosted 25 events.' },
+    { date: 'June 2025', text: 'Three months in, SuiHub has already hosted almost 25 events.' },
     { date: 'June 26, 2025', text: 'Official grand opening, with 400+ attendees, including government officials, journalists, and CEOs.' },
     { date: 'June 2026', text: '12 months on: 80+ events hosted, including bootcamps, hackathons, consortiums, and more.' },
   ],

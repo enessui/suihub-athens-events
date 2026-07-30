@@ -12,7 +12,7 @@ export type CoworkingContent = {
 export const DEFAULT_COWORKING: CoworkingContent = {
   hoursWeekdays: 'Monday – Friday | 10:00 AM – 7:00 PM',
   hoursNote: "We're closed on weekends and public holidays.",
-  joinIntro: "Access is completely free. The only requirement is a quick registration so we can give you future updates.",
+  joinIntro: "Access is completely free. The only requirement is a quick registration during your first visit so we can give you future updates.",
   registerUrl: 'https://tr.ee/CCVVf4yyQw',
   joinNote: "Once registered, you're welcome to drop in any time during our open hours. No booking needed.",
   amenities: [

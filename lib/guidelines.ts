@@ -14,9 +14,9 @@ export const DEFAULT_GUIDELINES: GuidelinesContent = {
   purpose:
     'Our space is designed to host events that foster community, learning, and collaboration. To ensure all gatherings align with our mission, please review the guidelines below.',
   requestSteps: [
-    'Contact us at suihubathens@sui.io with a brief overview of your event needs (date, attendance estimate, operational needs, etc.)',
+    'Contact us at suihubathens@sui.io with a brief overview of your event needs (date, attendance estimate, operational needs, etc.).',
     'Submit requests at least 3 weeks in advance to ensure on-time preparation.',
-    'The review process usually takes up to 1 week.',
+    'The review process takes about a week.',
   ],
   eventTypes: [
     'Community meetups',

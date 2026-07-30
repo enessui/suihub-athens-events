@@ -35,7 +35,7 @@ export async function SiteHeader({ pathname = '/' }: { pathname?: string }) {
               />
             </Link>
             <span className="hidden sm:flex items-center text-sm font-bold text-white leading-none">
-              The home of builders. Powered by <span className="text-primary ml-1">Sui</span>.
+              The home for builders. Powered by <span className="text-primary ml-1">Sui</span>.
             </span>
           </div>
           <MobileNav />
