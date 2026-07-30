@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { Lock } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,7 @@ import {
 import { getMeetingBookings, bookMeetingRoom, cancelMeetingBooking } from '@/app/meeting-room/actions'
 import { MEETING_HOURS, formatHour, type MeetingBooking } from '@/lib/meeting-room'
 import { CheckinClient } from '@/components/checkin/checkin-client'
+import { Turnstile, captchaEnabled, type TurnstileHandle } from '@/components/turnstile'
 import type { CheckinEntry, DailyCount, LeaderboardEntry } from '@/app/checkin/actions'
 
 function todayStr(): string {
@@ -48,6 +49,8 @@ export function ReserveClient({
   const [date, setDate] = useState(initialDate)
   const [meetingBookings, setMeetingBookings] = useState(initialMeetingBookings)
   const [selectedHour, setSelectedHour] = useState<number | null>(null)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const turnstileRef = useRef<TurnstileHandle>(null)
   const [isPending, startTransition] = useTransition()
   const [loading, setLoading] = useState(false)
 
@@ -73,13 +76,17 @@ export function ReserveClient({
         name: (fd.get('name') as string) ?? '',
         email: (fd.get('email') as string) ?? '',
         topic: (fd.get('topic') as string) ?? '',
+        captchaToken,
       })
       if (result?.error) {
         toast.error(result.error)
+        setCaptchaToken('')
+        turnstileRef.current?.reset()
         return
       }
       toast.success(`Meeting room booked for ${formatHour(selectedHour)} on ${date}`)
       setSelectedHour(null)
+      setCaptchaToken('')
       setMeetingBookings(await getMeetingBookings(date))
     })
   }
@@ -245,11 +252,17 @@ export function ReserveClient({
               <Label htmlFor="mr-topic">Topic (optional)</Label>
               <Input id="mr-topic" name="topic" placeholder="e.g. Team sync, client call" />
             </div>
+            <Turnstile
+              ref={turnstileRef}
+              onVerify={setCaptchaToken}
+              onExpire={() => setCaptchaToken('')}
+              onError={() => setCaptchaToken('')}
+            />
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setSelectedHour(null)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Button type="submit" disabled={isPending || (captchaEnabled && !captchaToken)} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 {isPending ? 'Booking…' : 'Book slot'}
               </Button>
             </DialogFooter>

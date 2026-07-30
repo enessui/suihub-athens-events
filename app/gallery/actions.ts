@@ -5,6 +5,7 @@ import { Resend } from 'resend'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { escapeHtml } from '@/lib/notify'
+import { verifyTurnstile } from '@/lib/turnstile'
 
 export type GalleryImage = {
   id: string
@@ -70,10 +71,14 @@ export async function submitVisitorPhotos(
   const name = ((formData.get('name') as string) ?? '').trim()
   const email = ((formData.get('email') as string) ?? '').trim()
   const note = ((formData.get('note') as string) ?? '').trim()
+  const captchaToken = (formData.get('captchaToken') as string) ?? ''
   const files = formData.getAll('photos').filter((f): f is File => f instanceof File && f.size > 0)
 
   if (!name) return { error: 'Please enter your name.' }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Please enter a valid email.' }
+  if (!(await verifyTurnstile(captchaToken))) {
+    return { error: 'Captcha verification failed. Please try again.' }
+  }
   if (files.length === 0) return { error: 'Please attach at least one photo.' }
   if (files.length > 5) return { error: 'Maximum 5 photos per submission.' }
 

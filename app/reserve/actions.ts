@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyTurnstile } from '@/lib/turnstile'
 import { SPOTS, OPEN_HOUR, CLOSE_HOUR, type Reservation } from '@/lib/coworking-spots'
 
 export async function getReservations(date: string): Promise<Reservation[]> {
@@ -11,7 +12,13 @@ export async function getReservations(date: string): Promise<Reservation[]> {
     .from('coworking_reservations')
     .select('id, spot_id, date, start_hour, end_hour, name, email, created_at')
     .eq('date', date)
-  return (data ?? []) as Reservation[]
+  const rows = (data ?? []) as Reservation[]
+
+  // Only admins see who reserved. Strip name/email for everyone else so this
+  // personal data never ships in the page payload (UI hiding isn't enough).
+  const { data: isAdmin } = await supabase.rpc('is_admin')
+  if (isAdmin) return rows
+  return rows.map((r) => ({ ...r, name: '', email: '' }))
 }
 
 export async function reserveSpot(input: {
@@ -21,6 +28,7 @@ export async function reserveSpot(input: {
   hours: number
   name: string
   email: string
+  captchaToken?: string
 }): Promise<{ error?: string }> {
   const { spotId, date, startHour, hours, name, email } = input
   const endHour = startHour + hours
@@ -29,6 +37,9 @@ export async function reserveSpot(input: {
   if (!name.trim()) return { error: 'Please enter your name.' }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Please enter a valid email.' }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date.' }
+  if (!(await verifyTurnstile(input.captchaToken))) {
+    return { error: 'Captcha verification failed. Please try again.' }
+  }
   if (!Number.isInteger(startHour) || !Number.isInteger(hours) || hours < 1) {
     return { error: 'Invalid time slot.' }
   }

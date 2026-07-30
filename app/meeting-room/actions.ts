@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyTurnstile } from '@/lib/turnstile'
 import { MEETING_HOURS, type MeetingBooking } from '@/lib/meeting-room'
 
 export async function getMeetingBookings(date: string): Promise<MeetingBooking[]> {
@@ -12,7 +13,14 @@ export async function getMeetingBookings(date: string): Promise<MeetingBooking[]
     .select('id, date, hour, name, email, topic, created_at')
     .eq('date', date)
     .order('hour', { ascending: true })
-  return (data ?? []) as MeetingBooking[]
+  const rows = (data ?? []) as MeetingBooking[]
+
+  // Only admins see who booked. For everyone else, strip the booker's name,
+  // email, and topic so this personal data never ships in the page payload —
+  // hiding it in the UI alone still leaves it readable in the response.
+  const { data: isAdmin } = await supabase.rpc('is_admin')
+  if (isAdmin) return rows
+  return rows.map((b) => ({ ...b, name: '', email: '', topic: null }))
 }
 
 export async function bookMeetingRoom(input: {
@@ -21,6 +29,7 @@ export async function bookMeetingRoom(input: {
   name: string
   email: string
   topic: string
+  captchaToken?: string
 }): Promise<{ error?: string }> {
   const { date, hour, name, email, topic } = input
 
@@ -28,6 +37,9 @@ export async function bookMeetingRoom(input: {
   if (!name.trim()) return { error: 'Please enter your name.' }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Please enter a valid email.' }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date.' }
+  if (!(await verifyTurnstile(input.captchaToken))) {
+    return { error: 'Captcha verification failed. Please try again.' }
+  }
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)

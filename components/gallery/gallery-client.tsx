@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Turnstile, captchaEnabled, type TurnstileHandle } from '@/components/turnstile'
 import { uploadGalleryImage, deleteGalleryImage, submitVisitorPhotos, type GalleryImage } from '@/app/gallery/actions'
 
 export function GalleryClient({
@@ -31,6 +32,8 @@ export function GalleryClient({
   const [isPending, startTransition] = useTransition()
   const [progress, setProgress] = useState<string | null>(null)
   const [fileCount, setFileCount] = useState(0)
+  const [subCaptcha, setSubCaptcha] = useState('')
+  const subTurnstileRef = useRef<TurnstileHandle>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -96,6 +99,7 @@ export function GalleryClient({
       fd.append('name', name)
       fd.append('email', email)
       fd.append('note', note)
+      fd.append('captchaToken', subCaptcha)
       for (const f of files) {
         const buffer = await f.arrayBuffer()
         fd.append('photos', new Blob([buffer], { type: f.type }), f.name)
@@ -103,9 +107,12 @@ export function GalleryClient({
       const result = await submitVisitorPhotos(fd)
       if (result?.error) {
         toast.error(result.error)
+        setSubCaptcha('')
+        subTurnstileRef.current?.reset()
         return
       }
       toast.success('Thanks! Your photos were sent to the SuiHub team.')
+      setSubCaptcha('')
       setSubmitOpen(false)
     })
   }
@@ -268,11 +275,17 @@ export function GalleryClient({
               <Label htmlFor="sub-note">Note (optional)</Label>
               <Input id="sub-note" name="note" placeholder="e.g. From the AI workshop last week" />
             </div>
+            <Turnstile
+              ref={subTurnstileRef}
+              onVerify={setSubCaptcha}
+              onExpire={() => setSubCaptcha('')}
+              onError={() => setSubCaptcha('')}
+            />
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setSubmitOpen(false)} disabled={isPending}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
+              <Button type="submit" disabled={isPending || (captchaEnabled && !subCaptcha)}>
                 {isPending ? 'Sending…' : 'Send photos'}
               </Button>
             </DialogFooter>

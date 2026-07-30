@@ -1,13 +1,18 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyTurnstile } from '@/lib/turnstile'
 
 export async function subscribe(
   email: string,
+  captchaToken?: string,
 ): Promise<{ error?: string; alreadySubscribed?: boolean }> {
   const clean = email.trim().toLowerCase()
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)) {
     return { error: 'Please enter a valid email.' }
+  }
+  if (!(await verifyTurnstile(captchaToken))) {
+    return { error: 'Captcha verification failed. Please try again.' }
   }
 
   const admin = createAdminClient()

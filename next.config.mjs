@@ -24,7 +24,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   scriptSrc,
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://va.vercel-scripts.com https://vitals.vercel-insights.com",
-  "frame-src https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com",
+  "frame-src https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com",
 ].join('; ')
 
 const securityHeaders = [

@@ -1,23 +1,28 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { Mail, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Turnstile, captchaEnabled, type TurnstileHandle } from '@/components/turnstile'
 import { subscribe } from '@/app/coworking/subscribe-actions'
 
 export function NewsletterSignup() {
   const [done, setDone] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const turnstileRef = useRef<TurnstileHandle>(null)
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const email = (new FormData(e.currentTarget).get('email') as string) ?? ''
     startTransition(async () => {
-      const result = await subscribe(email)
+      const result = await subscribe(email, captchaToken)
       if (result?.error) {
         toast.error(result.error)
+        setCaptchaToken('')
+        turnstileRef.current?.reset()
         return
       }
       if (result?.alreadySubscribed) {
@@ -44,18 +49,27 @@ export function NewsletterSignup() {
           You&apos;re subscribed. Welcome aboard.
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-2 sm:flex-row">
-          <Input
-            name="email"
-            type="email"
-            required
-            placeholder="you@example.com"
-            className="sm:max-w-xs"
-            aria-label="Email address"
+        <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              name="email"
+              type="email"
+              required
+              placeholder="you@example.com"
+              className="sm:max-w-xs"
+              aria-label="Email address"
+            />
+            <Button type="submit" disabled={isPending || (captchaEnabled && !captchaToken)}>
+              {isPending ? 'Subscribing…' : 'Subscribe'}
+            </Button>
+          </div>
+          <Turnstile
+            ref={turnstileRef}
+            onVerify={setCaptchaToken}
+            onExpire={() => setCaptchaToken('')}
+            onError={() => setCaptchaToken('')}
+            className="w-full sm:max-w-xs"
           />
-          <Button type="submit" disabled={isPending}>
-            {isPending ? 'Subscribing…' : 'Subscribe'}
-          </Button>
         </form>
       )}
     </section>
