@@ -7,8 +7,10 @@ import { verifyTurnstile } from '@/lib/turnstile'
 import { SPOTS, OPEN_HOUR, CLOSE_HOUR, type Reservation } from '@/lib/coworking-spots'
 
 export async function getReservations(date: string): Promise<Reservation[]> {
-  const supabase = await createClient()
-  const { data } = await supabase
+  // Read with the service-role client so the table can stay locked to the public
+  // anon role in RLS — the anon key must not be able to read reserver PII.
+  const admin = createAdminClient()
+  const { data } = await admin
     .from('coworking_reservations')
     .select('id, spot_id, date, start_hour, end_hour, name, email, created_at')
     .eq('date', date)
@@ -16,6 +18,7 @@ export async function getReservations(date: string): Promise<Reservation[]> {
 
   // Only admins see who reserved. Strip name/email for everyone else so this
   // personal data never ships in the page payload (UI hiding isn't enough).
+  const supabase = await createClient()
   const { data: isAdmin } = await supabase.rpc('is_admin')
   if (isAdmin) return rows
   return rows.map((r) => ({ ...r, name: '', email: '' }))
