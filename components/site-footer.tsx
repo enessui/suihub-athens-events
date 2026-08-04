@@ -1,10 +1,24 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Clock, Mail, MapPin } from 'lucide-react'
+import { FooterNewsletter } from '@/components/footer-newsletter'
 
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-white/10 bg-[#030F1C] text-white">
+      {/* Newsletter */}
+      <div className="border-b border-white/10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 md:flex-row md:items-center md:justify-between md:px-6">
+          <div>
+            <p className="text-base font-semibold">Stay in the loop</p>
+            <p className="mt-1 text-sm text-white/60">
+              Events, workshops, and hub news, now and then.
+            </p>
+          </div>
+          <FooterNewsletter />
+        </div>
+      </div>
+
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 md:grid-cols-5 md:px-6">
         {/* Brand */}
         <div className="flex flex-col gap-3">
