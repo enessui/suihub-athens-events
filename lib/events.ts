@@ -10,6 +10,7 @@ export type EventRow = {
   start_time: string
   end_time: string | null
   image_url: string | null
+  show_on_tv: boolean
   created_by: string | null
   created_at: string
 }

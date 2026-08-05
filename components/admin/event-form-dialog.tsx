@@ -308,6 +308,22 @@ export function EventFormDialog({
             </p>
           </div>
 
+          <label htmlFor="show_on_tv" className="flex items-start gap-2.5 rounded-lg border border-border p-3 text-sm">
+            <input
+              id="show_on_tv"
+              name="show_on_tv"
+              type="checkbox"
+              defaultChecked={event?.show_on_tv ?? true}
+              className="mt-0.5 size-4 shrink-0 rounded border-border accent-primary"
+            />
+            <span>
+              Show on the TV display
+              <span className="block text-xs text-muted-foreground">
+                Uncheck to keep internal events off the lobby carousel (/tv).
+              </span>
+            </span>
+          </label>
+
           <DialogFooter>
             <Button
               type="button"

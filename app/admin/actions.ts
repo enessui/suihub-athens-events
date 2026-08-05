@@ -58,6 +58,7 @@ function parseForm(formData: FormData) {
     room: ((formData.get('room') as string) || '').trim() || null,
     industry: ((formData.get('industry') as string) || '').trim() || null,
     registration_link,
+    show_on_tv: formData.get('show_on_tv') === 'on',
     start_time: spaceInputToUtc(start),
     end_time: spaceInputToUtc(end),
   }

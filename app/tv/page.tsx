@@ -47,9 +47,11 @@ export default async function TvPage() {
   const proto = h.get('x-forwarded-proto') ?? 'https'
   const baseUrl = host ? `${proto}://${host}` : ''
 
-  // Upcoming only: keep events that haven't ended yet, soonest first.
+  // Upcoming, opted-in only: keep events that haven't ended yet and aren't
+  // hidden from the TV (show_on_tv !== false stays safe if the column is absent).
   const now = Date.now()
   const upcoming = events
+    .filter((e) => e.show_on_tv !== false)
     .filter((e) => new Date(e.end_time ?? e.start_time).getTime() >= now)
     .slice(0, 24)
 
