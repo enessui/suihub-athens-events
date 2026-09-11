@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AdminDashboard } from '@/components/admin/admin-dashboard'
+import { isAdminUnlocked } from '@/lib/admin-pin'
 import type { EventRow } from '@/lib/events'
 
 export const dynamic = 'force-dynamic'
@@ -19,6 +20,11 @@ export default async function AdminPage() {
   const { data: isAdmin } = await supabase.rpc('is_admin')
   if (!isAdmin) {
     redirect('/auth/login?error=not_admin')
+  }
+
+  // Optional PIN lock on top of auth.
+  if (!(await isAdminUnlocked())) {
+    redirect('/admin/unlock')
   }
 
   const [{ data: eventData }, { data: adminData }] = await Promise.all([

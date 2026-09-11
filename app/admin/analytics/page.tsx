@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AnalyticsClient } from '@/components/admin/analytics-client'
+import { isAdminUnlocked } from '@/lib/admin-pin'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,6 +43,8 @@ export default async function AnalyticsPage() {
 
   const { data: isAdmin } = await supabase.rpc('is_admin')
   if (!isAdmin) redirect('/auth/login?error=not_admin')
+
+  if (!(await isAdminUnlocked())) redirect('/admin/unlock')
 
   // Verified admin — use the service-role client to read the private tables.
   const admin = createAdminClient()
