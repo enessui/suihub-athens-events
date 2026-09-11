@@ -4,6 +4,7 @@ import { SiteHeader } from '@/components/site-header'
 import { GuidelinesClient } from '@/components/guidelines/guidelines-client'
 import { getGuidelines } from './actions'
 import { DEFAULT_GUIDELINES } from '@/lib/guidelines'
+import { sanitizeGuidelines } from '@/lib/sanitize'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
 import { safe, isAdminSafe } from '@/lib/supabase/safe'
 
@@ -15,10 +16,13 @@ export const metadata = {
 }
 
 export default async function GuidelinesPage() {
-  const [content, trueAdmin] = await Promise.all([
+  const [rawContent, trueAdmin] = await Promise.all([
     safe(getGuidelines, DEFAULT_GUIDELINES),
     isAdminSafe(),
   ])
+  // Sanitize the admin-authored rich text before it reaches the browser, so a
+  // stored <script>/onerror can't run for visitors (rendered via innerHTML).
+  const content = sanitizeGuidelines(rawContent)
 
   return (
     <main className="min-h-svh">

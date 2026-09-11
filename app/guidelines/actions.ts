@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { type GuidelinesContent, DEFAULT_GUIDELINES } from '@/lib/guidelines'
+import { sanitizeGuidelines } from '@/lib/sanitize'
 
 export async function getGuidelines(): Promise<GuidelinesContent> {
   const supabase = await createClient()
@@ -23,7 +24,7 @@ export async function updateGuidelines(
 
   const { error } = await supabase.from('site_settings').upsert({
     key: 'guidelines',
-    value: content,
+    value: sanitizeGuidelines(content),
     updated_at: new Date().toISOString(),
   })
   if (error) return { error: error.message }
