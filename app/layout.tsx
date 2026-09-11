@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   description:
     'Discover workshops, talks, socials and more happening at our coworking space every month.',
   icons: {
-    icon: '/Sui_Symbol_Sea.png',
-    apple: '/Sui_Symbol_Sea.png',
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
   },
 }
 
