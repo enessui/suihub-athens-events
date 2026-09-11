@@ -16,23 +16,9 @@ export const metadata: Metadata = {
   title: 'SuiHub Events · Coworking Calendar',
   description:
     'Discover workshops, talks, socials and more happening at our coworking space every month.',
-  generator: 'v0.app',
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/Sui_Symbol_Sea.png',
+    apple: '/Sui_Symbol_Sea.png',
   },
 }
 
