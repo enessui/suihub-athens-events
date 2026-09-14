@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { SITE_CONTENT_TAG } from '@/lib/site-content'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_ABOUT, type AboutContent } from '@/lib/about'
@@ -34,5 +35,6 @@ export async function updateAbout(content: AboutContent): Promise<{ error?: stri
   if (error) return { error: error.message }
 
   revalidatePath('/')
+  updateTag(SITE_CONTENT_TAG)
   return {}
 }

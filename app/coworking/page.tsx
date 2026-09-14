@@ -4,8 +4,7 @@ import { SiteHeader } from '@/components/site-header'
 import { CoworkingClient } from '@/components/coworking/coworking-client'
 import { OpenStatus } from '@/components/coworking/open-status'
 import { NewsletterSignup } from '@/components/coworking/newsletter-signup'
-import { getCoworking } from './actions'
-import { getMemberCount } from './register-actions'
+import { getCoworkingCached, getMemberCountCached } from '@/lib/site-content'
 import { getTodayCount } from '@/app/checkin/actions'
 import { DEFAULT_COWORKING } from '@/lib/coworking'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
@@ -26,10 +25,10 @@ function athensToday(): string {
 
 export default async function CoworkingPage() {
   const [content, trueAdmin, checkinCount, memberCount, events] = await Promise.all([
-    safe(getCoworking, DEFAULT_COWORKING),
+    safe(getCoworkingCached, DEFAULT_COWORKING),
     isAdminSafe(),
     safe(getTodayCount, 0),
-    safe(getMemberCount, 0),
+    safe(getMemberCountCached, 0),
     safe(async () => {
       const supabase = await createClient()
       const { data } = await supabase

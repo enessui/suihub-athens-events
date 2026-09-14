@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { SITE_CONTENT_TAG } from '@/lib/site-content'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_COWORKING, type CoworkingContent } from '@/lib/coworking'
@@ -33,5 +34,6 @@ export async function updateCoworking(content: CoworkingContent): Promise<{ erro
   if (error) return { error: error.message }
 
   revalidatePath('/coworking')
+  updateTag(SITE_CONTENT_TAG)
   return {}
 }

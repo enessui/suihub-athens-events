@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { SITE_CONTENT_TAG } from '@/lib/site-content'
 import { createClient } from '@/lib/supabase/server'
 import { type GuidelinesContent, DEFAULT_GUIDELINES } from '@/lib/guidelines'
 import { sanitizeGuidelines } from '@/lib/sanitize'
@@ -30,5 +31,6 @@ export async function updateGuidelines(
   if (error) return { error: error.message }
 
   revalidatePath('/guidelines')
+  updateTag(SITE_CONTENT_TAG)
   return {}
 }

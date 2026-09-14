@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { GuidelinesClient } from '@/components/guidelines/guidelines-client'
-import { getGuidelines } from './actions'
+import { getGuidelinesCached } from '@/lib/site-content'
 import { DEFAULT_GUIDELINES } from '@/lib/guidelines'
 import { sanitizeGuidelines } from '@/lib/sanitize'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
@@ -17,7 +17,7 @@ export const metadata = {
 
 export default async function GuidelinesPage() {
   const [rawContent, trueAdmin] = await Promise.all([
-    safe(getGuidelines, DEFAULT_GUIDELINES),
+    safe(getGuidelinesCached, DEFAULT_GUIDELINES),
     isAdminSafe(),
   ])
   // Sanitize the admin-authored rich text before it reaches the browser, so a

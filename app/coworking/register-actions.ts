@@ -1,5 +1,7 @@
 'use server'
 
+import { updateTag } from 'next/cache'
+import { SITE_CONTENT_TAG } from '@/lib/site-content'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notifyAdmin, emailShell, emailRow, emailLinkRow } from '@/lib/notify'
@@ -67,6 +69,8 @@ export async function registerMember(
     ),
   )
 
+  // Keep the cached "registered members" stat fresh.
+  updateTag(SITE_CONTENT_TAG)
   return {}
 }
 

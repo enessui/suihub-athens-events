@@ -1,7 +1,7 @@
 import { SiteHeader } from '@/components/site-header'
 import { AboutClient } from '@/components/about/about-client'
-import { getAbout } from '@/app/about/actions'
-import { getMemberCount } from '@/app/coworking/register-actions'
+import { getAboutCached } from '@/lib/site-content'
+import { getMemberCountCached } from '@/lib/site-content'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
 import { safe, isAdminSafe } from '@/lib/supabase/safe'
 import { DEFAULT_ABOUT } from '@/lib/about'
@@ -16,9 +16,9 @@ export const metadata = {
 
 export default async function AboutPage() {
   const [content, trueAdmin, memberCount] = await Promise.all([
-    safe(getAbout, DEFAULT_ABOUT),
+    safe(getAboutCached, DEFAULT_ABOUT),
     isAdminSafe(),
-    safe(getMemberCount, 0),
+    safe(getMemberCountCached, 0),
   ])
   const isAdmin = await getEffectiveIsAdmin(trueAdmin)
 

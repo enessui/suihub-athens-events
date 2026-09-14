@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { SITE_CONTENT_TAG } from '@/lib/site-content'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_ANNOUNCEMENT, type AnnouncementContent } from '@/lib/announcement'
@@ -35,5 +36,6 @@ export async function updateAnnouncement(
   if (error) return { error: error.message }
 
   revalidatePath('/', 'layout')
+  updateTag(SITE_CONTENT_TAG)
   return {}
 }

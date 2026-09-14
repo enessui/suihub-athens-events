@@ -9,15 +9,20 @@ import { AnnouncementBanner } from '@/components/announcement-banner'
 import { PreviewBanner } from '@/components/preview-banner'
 import { isPreviewMode } from '@/lib/preview-mode'
 import { enablePreviewMode } from '@/app/preview/actions'
-import { getAnnouncement } from '@/app/announcement/actions'
+import { getAnnouncementCached } from '@/lib/site-content'
 import { safe } from '@/lib/supabase/safe'
 import { DEFAULT_ANNOUNCEMENT } from '@/lib/announcement'
 
 export async function SiteHeader({ pathname = '/' }: { pathname?: string }) {
-  const trueAdmin = await isAdminSafe()
-  const preview = await isPreviewMode()
+  // Run in parallel — these used to await one after another, adding ~600ms to
+  // every page. isAdminSafe() is request-cached, so it costs nothing when the
+  // page has already asked for it.
+  const [trueAdmin, preview, announcement] = await Promise.all([
+    isAdminSafe(),
+    isPreviewMode(),
+    safe(getAnnouncementCached, DEFAULT_ANNOUNCEMENT),
+  ])
   const isAdmin = trueAdmin && !preview
-  const announcement = await safe(getAnnouncement, DEFAULT_ANNOUNCEMENT)
 
   return (
     <>
