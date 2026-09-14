@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyTurnstile } from '@/lib/turnstile'
@@ -21,10 +22,36 @@ function todayStr(): string {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' })
 }
 
-// Tally check-in days per person (one row = one day, guaranteed by the
-// (date, email) unique constraint). First names only — emails never exposed.
-function tally(
+type LeaderboardOverride = {
+  id: string
+  email: string | null
+  name: string | null
+  hidden: boolean
+  visits: number | null
+}
+
+// Admin edits to the leaderboard, stored separately from raw check-ins.
+// Resilient: if the table doesn't exist yet, the board still works unedited.
+async function fetchOverrides(
+  admin: ReturnType<typeof createAdminClient>,
+): Promise<LeaderboardOverride[]> {
+  try {
+    const { data, error } = await admin
+      .from('leaderboard_overrides')
+      .select('id, email, name, hidden, visits')
+    if (error) return []
+    return (data ?? []) as LeaderboardOverride[]
+  } catch {
+    return []
+  }
+}
+
+// Tally check-in days per person, then apply admin overrides (hide / adjust
+// count / manual entries). One row = one day (guaranteed by the (date, email)
+// unique constraint). First names only — emails never exposed to the public.
+function computeBoard(
   rows: { email: string; name: string }[],
+  overrides: LeaderboardOverride[],
   limit: number,
 ): LeaderboardEntry[] {
   const byEmail = new Map<string, { name: string; visits: number }>()
@@ -32,37 +59,173 @@ function tally(
     const entry = byEmail.get(row.email)
     if (entry) {
       entry.visits += 1
-      entry.name = row.name // keep most recent display name
+      entry.name = row.name
     } else {
       byEmail.set(row.email, { name: row.name, visits: 1 })
     }
   }
-  return [...byEmail.values()]
+  for (const o of overrides) {
+    if (!o.email) continue
+    const key = o.email.toLowerCase()
+    const entry = byEmail.get(key)
+    if (!entry) continue
+    if (o.hidden) {
+      byEmail.delete(key)
+      continue
+    }
+    if (o.visits != null) entry.visits = o.visits
+    if (o.name) entry.name = o.name
+  }
+  const list = [...byEmail.values()].map(({ name, visits }) => ({ name, visits }))
+  for (const o of overrides) {
+    if (o.email || o.hidden || !o.name) continue // manual, visible entries only
+    list.push({ name: o.name, visits: o.visits ?? 0 })
+  }
+  return list
     .sort((a, b) => b.visits - a.visits || a.name.localeCompare(b.name))
     .slice(0, limit)
-    .map(({ name, visits }) => ({ name, visits }))
 }
 
 // Public: top visitors for the current month
 export async function getMonthlyLeaderboard(limit = 10): Promise<LeaderboardEntry[]> {
   const monthStart = `${todayStr().slice(0, 7)}-01`
   const admin = createAdminClient()
-  const { data } = await admin
-    .from('coworking_checkins')
-    .select('email, name, date, created_at')
-    .gte('date', monthStart)
-    .order('created_at', { ascending: true })
-  return tally(data ?? [], limit)
+  const [{ data }, overrides] = await Promise.all([
+    admin
+      .from('coworking_checkins')
+      .select('email, name, date, created_at')
+      .gte('date', monthStart)
+      .order('created_at', { ascending: true }),
+    fetchOverrides(admin),
+  ])
+  return computeBoard(data ?? [], overrides, limit)
 }
 
 // Public: all-time top visitors by total days checked in
 export async function getAllTimeLeaderboard(limit = 10): Promise<LeaderboardEntry[]> {
   const admin = createAdminClient()
-  const { data } = await admin
-    .from('coworking_checkins')
-    .select('email, name, created_at')
-    .order('created_at', { ascending: true })
-  return tally(data ?? [], limit)
+  const [{ data }, overrides] = await Promise.all([
+    admin
+      .from('coworking_checkins')
+      .select('email, name, created_at')
+      .order('created_at', { ascending: true }),
+    fetchOverrides(admin),
+  ])
+  return computeBoard(data ?? [], overrides, limit)
+}
+
+// ---------- Admin: edit the leaderboard ----------
+
+export type AdminLeaderboardRow = {
+  email: string | null // null for a manually-added entry
+  overrideId: string | null
+  name: string
+  computed: number // auto count from check-ins (0 for manual)
+  visits: number // effective count shown
+  hidden: boolean
+  isManual: boolean
+}
+
+async function isCallerAdmin(): Promise<boolean> {
+  const supabase = await createClient()
+  const { data } = await supabase.rpc('is_admin')
+  return data === true
+}
+
+// Admin-only: every real person (all-time) plus manual entries, with their
+// current override state, so the editor can show and change them.
+export async function getLeaderboardAdmin(): Promise<{ rows?: AdminLeaderboardRow[]; error?: string }> {
+  if (!(await isCallerAdmin())) return { error: 'Not authorized' }
+  const admin = createAdminClient()
+  const [{ data: checks }, overrides] = await Promise.all([
+    admin.from('coworking_checkins').select('email, name, created_at').order('created_at', { ascending: true }),
+    fetchOverrides(admin),
+  ])
+
+  const byEmail = new Map<string, { name: string; visits: number }>()
+  for (const r of (checks ?? []) as { email: string; name: string }[]) {
+    const e = byEmail.get(r.email)
+    if (e) { e.visits += 1; e.name = r.name } else byEmail.set(r.email, { name: r.name, visits: 1 })
+  }
+  const ovByEmail = new Map(overrides.filter((o) => o.email).map((o) => [o.email!.toLowerCase(), o]))
+
+  const rows: AdminLeaderboardRow[] = []
+  for (const [email, base] of byEmail) {
+    const o = ovByEmail.get(email)
+    rows.push({
+      email,
+      overrideId: o?.id ?? null,
+      name: o?.name || base.name,
+      computed: base.visits,
+      visits: o?.visits ?? base.visits,
+      hidden: o?.hidden ?? false,
+      isManual: false,
+    })
+  }
+  for (const o of overrides) {
+    if (o.email) continue
+    rows.push({ email: null, overrideId: o.id, name: o.name ?? '', computed: 0, visits: o.visits ?? 0, hidden: o.hidden, isManual: true })
+  }
+  rows.sort((a, b) => b.visits - a.visits || a.name.localeCompare(b.name))
+  return { rows }
+}
+
+function revalidateBoards() {
+  revalidatePath('/checkin')
+  revalidatePath('/reserve')
+}
+
+// Admin-only: hide/adjust a real (check-in) person. visits=null & !hidden clears it.
+export async function setLeaderboardOverride(input: {
+  email: string
+  hidden: boolean
+  visits: number | null
+}): Promise<{ error?: string }> {
+  if (!(await isCallerAdmin())) return { error: 'Not authorized' }
+  const admin = createAdminClient()
+  const email = input.email.trim().toLowerCase()
+  if (!input.hidden && input.visits == null) {
+    await admin.from('leaderboard_overrides').delete().eq('email', email)
+    revalidateBoards()
+    return {}
+  }
+  const { error } = await admin.from('leaderboard_overrides').upsert(
+    { email, hidden: input.hidden, visits: input.visits, name: null },
+    { onConflict: 'email' },
+  )
+  if (error) return { error: error.message }
+  revalidateBoards()
+  return {}
+}
+
+// Admin-only: add or update a manual leaderboard entry.
+export async function saveManualLeaderboardEntry(input: {
+  id?: string
+  name: string
+  visits: number
+  hidden?: boolean
+}): Promise<{ error?: string }> {
+  if (!(await isCallerAdmin())) return { error: 'Not authorized' }
+  const name = input.name.trim()
+  if (!name) return { error: 'Please enter a name.' }
+  const admin = createAdminClient()
+  const payload = { name, visits: Math.max(0, input.visits | 0), hidden: input.hidden ?? false, email: null }
+  const { error } = input.id
+    ? await admin.from('leaderboard_overrides').update(payload).eq('id', input.id)
+    : await admin.from('leaderboard_overrides').insert(payload)
+  if (error) return { error: error.message }
+  revalidateBoards()
+  return {}
+}
+
+// Admin-only: remove an override row (reset a person to auto, or delete a manual entry).
+export async function deleteLeaderboardOverride(id: string): Promise<{ error?: string }> {
+  if (!(await isCallerAdmin())) return { error: 'Not authorized' }
+  const admin = createAdminClient()
+  const { error } = await admin.from('leaderboard_overrides').delete().eq('id', id)
+  if (error) return { error: error.message }
+  revalidateBoards()
+  return {}
 }
 
 // Public: how many people checked in today (number only, no personal data)

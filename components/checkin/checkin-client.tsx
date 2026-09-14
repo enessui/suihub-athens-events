@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Turnstile, captchaEnabled, type TurnstileHandle } from '@/components/turnstile'
 import { checkIn, getTodayCount, type CheckinEntry, type DailyCount, type LeaderboardEntry } from '@/app/checkin/actions'
+import { LeaderboardEditor } from '@/components/checkin/leaderboard-editor'
 
 const STORAGE_KEY = 'suihub-checkin-identity'
 
@@ -152,12 +153,13 @@ export function CheckinClient({
       )}
 
       {/* Builder leaderboard — days checked in */}
-      {(leaderboard.length > 0 || allTimeLeaderboard.length > 0) && (
+      {(leaderboard.length > 0 || allTimeLeaderboard.length > 0 || isAdmin) && (
         <div className="rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Trophy className="size-4 text-primary" />
               <p className="text-sm font-semibold">Builder leaderboard</p>
+              {isAdmin && <LeaderboardEditor />}
             </div>
             <div className="flex h-8 items-stretch rounded-lg border border-border p-0.5">
               <button
