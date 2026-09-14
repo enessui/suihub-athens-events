@@ -5,6 +5,7 @@ import { ReserveClient } from '@/components/coworking/reserve-client'
 import { getMeetingBookings } from '@/app/meeting-room/actions'
 import type { MeetingBooking } from '@/lib/meeting-room'
 import { getTodayCount, getAttendance, getMonthlyLeaderboard, getAllTimeLeaderboard, type LeaderboardEntry } from '@/app/checkin/actions'
+import { getTodayCountCached, getMonthlyLeaderboardCached, getAllTimeLeaderboardCached } from '@/lib/site-content'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
 import { safe, isAdminSafe } from '@/lib/supabase/safe'
 
@@ -31,9 +32,9 @@ export default async function ReservePage({
     await Promise.all([
       searchParams,
       safe(() => getMeetingBookings(date), [] as MeetingBooking[]),
-      safe(getTodayCount, 0),
-      safe(getMonthlyLeaderboard, [] as LeaderboardEntry[]),
-      safe(getAllTimeLeaderboard, [] as LeaderboardEntry[]),
+      safe(getTodayCountCached, 0),
+      safe(getMonthlyLeaderboardCached, [] as LeaderboardEntry[]),
+      safe(getAllTimeLeaderboardCached, [] as LeaderboardEntry[]),
       isAdminSafe(),
     ])
 

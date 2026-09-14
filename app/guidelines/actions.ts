@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath, updateTag } from 'next/cache'
-import { SITE_CONTENT_TAG } from '@/lib/site-content'
+import { SITE_CONTENT_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 import { type GuidelinesContent, DEFAULT_GUIDELINES } from '@/lib/guidelines'
 import { sanitizeGuidelines } from '@/lib/sanitize'

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getEventsCached } from '@/lib/site-content'
 import { SiteHeader } from '@/components/site-header'
 import { CalendarView } from '@/components/calendar/calendar-view'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
@@ -14,14 +14,7 @@ export const metadata = {
 
 export default async function EventsPage() {
   const [events, trueAdmin] = await Promise.all([
-    safe(async () => {
-      const supabase = await createClient()
-      const { data } = await supabase
-        .from('events')
-        .select('*')
-        .order('start_time', { ascending: true })
-      return (data ?? []) as EventRow[]
-    }, [] as EventRow[]),
+    safe(getEventsCached, [] as EventRow[]),
     isAdminSafe(),
   ])
 

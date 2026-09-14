@@ -1,6 +1,14 @@
 import { unstable_cache } from 'next/cache'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { SITE_CONTENT_TAG, EVENTS_TAG, CHECKIN_TAG } from '@/lib/cache-tags'
+import type { EventRow } from '@/lib/events'
+import {
+  getTodayCount,
+  getMonthlyLeaderboard,
+  getAllTimeLeaderboard,
+  type LeaderboardEntry,
+} from '@/app/checkin/actions'
 import { DEFAULT_ANNOUNCEMENT, type AnnouncementContent } from '@/lib/announcement'
 import { DEFAULT_ABOUT, type AboutContent } from '@/lib/about'
 import { DEFAULT_COWORKING, type CoworkingContent } from '@/lib/coworking'
@@ -12,7 +20,7 @@ import { DEFAULT_GUIDELINES, type GuidelinesContent } from '@/lib/guidelines'
  * behind the page's own queries). These readers cache it instead; admin edits
  * call revalidateTag(SITE_CONTENT_TAG) so changes still appear immediately.
  */
-export const SITE_CONTENT_TAG = 'site-content'
+export { SITE_CONTENT_TAG }
 const TTL = 300 // seconds; a safety net if a revalidate is ever missed
 
 // unstable_cache can't touch request APIs like cookies(), so this uses a plain
@@ -83,6 +91,45 @@ export const getGuidelinesCached = unstable_cache(
   },
   ['site-content:guidelines'],
   { tags: [SITE_CONTENT_TAG], revalidate: TTL },
+)
+
+/**
+ * The events list, read on the calendar, coworking page and TV display.
+ * Invalidated by EVENTS_TAG whenever an admin creates/edits/deletes an event.
+ */
+export const getEventsCached = unstable_cache(
+  async (): Promise<EventRow[]> => {
+    const { data } = await publicClient()
+      .from('events')
+      .select('*')
+      .order('start_time', { ascending: true })
+    return (data ?? []) as EventRow[]
+  },
+  ['events:all'],
+  { tags: [EVENTS_TAG], revalidate: 60 },
+)
+
+/**
+ * Check-in derived data. These scan coworking_checkins on every request
+ * otherwise; CHECKIN_TAG is invalidated when someone checks in or an admin
+ * edits the leaderboard, so they stay accurate.
+ */
+export const getTodayCountCached = unstable_cache(
+  async (): Promise<number> => getTodayCount(),
+  ['checkins:today-count'],
+  { tags: [CHECKIN_TAG], revalidate: 60 },
+)
+
+export const getMonthlyLeaderboardCached = unstable_cache(
+  async (): Promise<LeaderboardEntry[]> => getMonthlyLeaderboard(),
+  ['checkins:leaderboard-monthly'],
+  { tags: [CHECKIN_TAG], revalidate: 60 },
+)
+
+export const getAllTimeLeaderboardCached = unstable_cache(
+  async (): Promise<LeaderboardEntry[]> => getAllTimeLeaderboard(),
+  ['checkins:leaderboard-alltime'],
+  { tags: [CHECKIN_TAG], revalidate: 60 },
 )
 
 // Homepage stat — a count, not content, but equally cacheable.

@@ -1,5 +1,5 @@
 import { headers } from 'next/headers'
-import { createClient } from '@/lib/supabase/server'
+import { getEventsCached } from '@/lib/site-content'
 import { safe } from '@/lib/supabase/safe'
 import { qrSvg } from '@/lib/qr'
 import {
@@ -32,14 +32,7 @@ function isPlaceholder(title: string): boolean {
 }
 
 export default async function TvPage() {
-  const events = await safe(async () => {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('events')
-      .select('*')
-      .order('start_time', { ascending: true })
-    return (data ?? []) as EventRow[]
-  }, [] as EventRow[])
+  const events = await safe(getEventsCached, [] as EventRow[])
 
   // Absolute base URL for the fallback QR (events not carrying a signup link).
   const h = await headers()

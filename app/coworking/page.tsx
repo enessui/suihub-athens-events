@@ -5,7 +5,7 @@ import { SiteHeader } from '@/components/site-header'
 import { CoworkingClient } from '@/components/coworking/coworking-client'
 import { OpenStatus } from '@/components/coworking/open-status'
 import { NewsletterSignup } from '@/components/coworking/newsletter-signup'
-import { getCoworkingCached, getMemberCountCached } from '@/lib/site-content'
+import { getCoworkingCached, getMemberCountCached, getTodayCountCached, getEventsCached } from '@/lib/site-content'
 import { getTodayCount } from '@/app/checkin/actions'
 import { DEFAULT_COWORKING } from '@/lib/coworking'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
@@ -28,16 +28,9 @@ export default async function CoworkingPage() {
   const [content, trueAdmin, checkinCount, memberCount, events] = await Promise.all([
     safe(getCoworkingCached, DEFAULT_COWORKING),
     isAdminSafe(),
-    safe(getTodayCount, 0),
+    safe(getTodayCountCached, 0),
     safe(getMemberCountCached, 0),
-    safe(async () => {
-      const supabase = await createClient()
-      const { data } = await supabase
-        .from('events')
-        .select('*')
-        .order('start_time', { ascending: true })
-      return (data ?? []) as EventRow[]
-    }, [] as EventRow[]),
+    safe(getEventsCached, [] as EventRow[]),
   ])
 
   const isAdmin = await getEffectiveIsAdmin(trueAdmin)

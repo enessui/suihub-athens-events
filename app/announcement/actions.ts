@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath, updateTag } from 'next/cache'
-import { SITE_CONTENT_TAG } from '@/lib/site-content'
+import { SITE_CONTENT_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_ANNOUNCEMENT, type AnnouncementContent } from '@/lib/announcement'

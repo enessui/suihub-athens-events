@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { CHECKIN_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyTurnstile } from '@/lib/turnstile'
@@ -171,6 +172,7 @@ export async function getLeaderboardAdmin(): Promise<{ rows?: AdminLeaderboardRo
 }
 
 function revalidateBoards() {
+  updateTag(CHECKIN_TAG)
   revalidatePath('/checkin')
   revalidatePath('/reserve')
 }
@@ -264,6 +266,8 @@ export async function checkIn(input: {
     return { error: error.message }
   }
 
+  // Today's count and the leaderboards are cached — refresh them now.
+  revalidateBoards()
   return {}
 }
 

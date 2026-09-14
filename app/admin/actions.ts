@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { EVENTS_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
 import { spaceInputToUtc } from '@/lib/events'
 
@@ -93,6 +94,7 @@ export async function createEvent(formData: FormData): Promise<ActionResult> {
   }
 
   revalidatePath('/')
+  updateTag(EVENTS_TAG)
   revalidatePath('/admin')
   return {}
 }
@@ -134,6 +136,7 @@ export async function updateEvent(
   }
 
   revalidatePath('/')
+  updateTag(EVENTS_TAG)
   revalidatePath('/admin')
   return {}
 }
@@ -147,6 +150,7 @@ export async function deleteEvent(id: string): Promise<ActionResult> {
   if (error) return { error: error.message }
 
   revalidatePath('/')
+  updateTag(EVENTS_TAG)
   revalidatePath('/admin')
   return {}
 }
