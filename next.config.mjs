@@ -38,7 +38,9 @@ const securityHeaders = [
 
 const nextConfig = {
   images: {
-    unoptimized: true,
+    // Optimization on (resize + modern formats). Event covers live in Supabase
+    // storage; any other remote host is opted out per-<Image unoptimized />.
+    remotePatterns: [{ protocol: 'https', hostname: '*.supabase.co', pathname: '/storage/v1/object/public/**' }],
   },
   experimental: {
     serverActions: {

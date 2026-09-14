@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, Users, UserCheck, CalendarDays, AlertTriangle, DoorOpen, MapPin } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
@@ -155,11 +156,12 @@ export default async function CoworkingPage() {
               { src: '/hub/cowork-lobby.jpg', alt: 'Reception and lounge' },
             ].map((p) => (
               <div key={p.src} className="group relative aspect-square overflow-hidden rounded-xl border-2 border-primary/40 bg-muted">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={p.src}
                   alt={p.alt}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 768px) 33vw, 240px"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             ))}

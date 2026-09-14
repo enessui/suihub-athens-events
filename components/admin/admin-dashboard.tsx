@@ -344,6 +344,9 @@ function EventGroup({
                   fill
                   className="object-cover"
                   sizes="64px"
+                  // Imported covers can point at any host, so skip the
+                  // optimizer here rather than risk an unconfigured domain.
+                  unoptimized
                 />
               ) : (
                 <div className="flex size-full items-center justify-center">

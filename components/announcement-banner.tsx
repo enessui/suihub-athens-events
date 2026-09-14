@@ -43,7 +43,7 @@ export function AnnouncementBanner({
           {message}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/Sui_Symbol_Sea.png"
+            src="/sui-symbol-sm.png"
             alt=""
             aria-hidden="true"
             className="mx-6 h-4 w-4 shrink-0 object-contain opacity-90 [filter:brightness(0)_invert(1)]"

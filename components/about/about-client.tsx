@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowRight, CalendarDays, MapPin, Pencil, Save, X, Plus, Trash2,
@@ -112,8 +113,14 @@ export function AboutClient({
             </div>
           </div>
           <div className="relative min-h-64 md:min-h-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/hub/hub-exterior.jpg" alt="The SuiHub Athens building at night" className="absolute inset-0 h-full w-full object-cover" />
+            <Image
+              src="/hub/hub-exterior.jpg"
+              alt="The SuiHub Athens building at night"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
           </div>
         </div>
       </section>
