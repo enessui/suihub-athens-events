@@ -1,26 +1,35 @@
 import { Resend } from 'resend'
 
-// Where admin notifications go. Override with ADMIN_NOTIFY_EMAIL if desired.
-const ADMIN_EMAIL = process.env.ADMIN_NOTIFY_EMAIL || 'suihubathens@sui.io'
+// Where admin notifications go. ADMIN_NOTIFY_EMAIL can hold several
+// addresses separated by commas.
+const ADMIN_EMAILS = (process.env.ADMIN_NOTIFY_EMAIL || 'suihubathens@sui.io')
+  .split(',')
+  .map((e) => e.trim())
+  .filter(Boolean)
+
+// Resend's shared onboarding sender can only deliver to the Resend account's
+// own address. To email anyone else (a coworker whose booking was approved,
+// or several admins), verify a domain in Resend and set RESEND_FROM, e.g.
+// "SuiHub Athens <hello@suihubathens.com>".
+const FROM = process.env.RESEND_FROM || 'SuiHub Athens <onboarding@resend.dev>'
 
 /**
- * Send an admin notification email. Best-effort: if RESEND_API_KEY is unset or
- * the send fails, it resolves without throwing so the caller (registration /
- * request) never breaks because of email.
+ * Send an email. Best-effort: if RESEND_API_KEY is unset or the send fails, it
+ * resolves without throwing so the caller never breaks because of email.
  */
-export async function notifyAdmin(subject: string, html: string): Promise<void> {
+export async function sendEmail(to: string | string[], subject: string, html: string): Promise<void> {
   if (!process.env.RESEND_API_KEY) return
   try {
     const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send({
-      from: 'SuiHub Athens <onboarding@resend.dev>',
-      to: ADMIN_EMAIL,
-      subject,
-      html,
-    })
+    await resend.emails.send({ from: FROM, to, subject, html })
   } catch {
-    // Notification failed — the underlying data was already saved.
+    // Sending failed; whatever triggered it was already saved.
   }
+}
+
+/** Email the admin inbox. */
+export async function notifyAdmin(subject: string, html: string): Promise<void> {
+  await sendEmail(ADMIN_EMAILS, subject, html)
 }
 
 // Escape user-controlled text before placing it in email HTML. Notification
@@ -81,4 +90,13 @@ export function emailLinkRow(label: string, url: string, text?: string): string 
     <td style="padding: 8px 0; color: #91A3B1; width: 170px; vertical-align: top;">${escapeHtml(label)}</td>
     <td style="padding: 8px 0; font-weight: 500;">${inner}</td>
   </tr>`
+}
+
+// A call-to-action link styled as a button, spanning both table columns.
+export function emailButtonRow(label: string, url: string): string {
+  const href = safeHref(url)
+  if (!href) return ''
+  return `<tr><td colspan="2" style="padding: 24px 0 0;">
+    <a href="${escapeHtml(href)}" style="display: inline-block; background: #4DA2FF; color: #ffffff; text-decoration: none; font-weight: 600; padding: 10px 18px; border-radius: 8px;">${escapeHtml(label)}</a>
+  </td></tr>`
 }

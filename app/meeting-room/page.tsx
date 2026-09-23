@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
-import { MeetingRoomClient } from '@/components/meeting-room/meeting-room-client'
+import { MeetingRoomBooker } from '@/components/meeting-room/meeting-room-booker'
 import { getMeetingBookings } from './actions'
-import type { MeetingBooking } from '@/lib/meeting-room'
+import { firstBookableDate, type MeetingBooking } from '@/lib/meeting-room'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
 import { safe, isAdminSafe } from '@/lib/supabase/safe'
 
@@ -14,14 +14,8 @@ export const metadata = {
   description: 'Book the private meeting room at SuiHub Athens.',
 }
 
-function todayStr(): string {
-  const d = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
-
 export default async function MeetingRoomPage() {
-  const date = todayStr()
+  const date = firstBookableDate()
   const [bookings, trueAdmin] = await Promise.all([
     safe(() => getMeetingBookings(date), [] as MeetingBooking[]),
     isAdminSafe(),
@@ -45,11 +39,11 @@ export default async function MeetingRoomPage() {
           <div className="mb-10">
             <h1 className="text-4xl font-bold tracking-tight">Private Meeting Room</h1>
             <p className="mt-3 text-muted-foreground">
-              Located on the 3rd floor. Booked in two-hour blocks. Pick a date and choose a free slot.
+              On the 3rd floor. Pick a weekday, a start time and how long you need it. An admin confirms each request.
             </p>
           </div>
 
-          <MeetingRoomClient initialDate={date} initialBookings={bookings} isAdmin={isAdmin} />
+          <MeetingRoomBooker initialDate={date} initialBookings={bookings} isAdmin={isAdmin} />
         </div>
       </div>
     </main>

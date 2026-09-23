@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { AdminDashboard } from '@/components/admin/admin-dashboard'
 import { isAdminUnlocked } from '@/lib/admin-pin'
 import type { EventRow } from '@/lib/events'
+import { getPendingMeetingRequests } from '@/app/meeting-room/actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,12 +28,13 @@ export default async function AdminPage() {
     redirect('/admin/unlock')
   }
 
-  const [{ data: eventData }, { data: adminData }] = await Promise.all([
+  const [{ data: eventData }, { data: adminData }, meetingRequests] = await Promise.all([
     supabase.from('events').select('*').order('start_time', { ascending: true }),
     supabase
       .from('admin_allowlist')
       .select('email, created_at')
       .order('created_at', { ascending: true }),
+    getPendingMeetingRequests(),
   ])
 
   const events = (eventData ?? []) as EventRow[]
@@ -43,6 +45,7 @@ export default async function AdminPage() {
       events={events}
       userEmail={user.email ?? ''}
       admins={admins}
+      meetingRequests={meetingRequests}
     />
   )
 }

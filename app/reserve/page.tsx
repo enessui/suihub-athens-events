@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { ReserveClient } from '@/components/coworking/reserve-client'
 import { getMeetingBookings } from '@/app/meeting-room/actions'
-import type { MeetingBooking } from '@/lib/meeting-room'
+import { firstBookableDate, type MeetingBooking } from '@/lib/meeting-room'
 import { getTodayCount, getAttendance, getMonthlyLeaderboard, getAllTimeLeaderboard, type LeaderboardEntry } from '@/app/checkin/actions'
 import { getTodayCountCached, getMonthlyLeaderboardCached, getAllTimeLeaderboardCached } from '@/lib/site-content'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
@@ -16,18 +16,12 @@ export const metadata = {
   description: 'Check in or reserve your coworking spot at SuiHub Athens.',
 }
 
-function todayStr(): string {
-  const d = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
-
 export default async function ReservePage({
   searchParams,
 }: {
   searchParams: Promise<{ checkin?: string; meeting?: string }>
 }) {
-  const date = todayStr()
+  const date = firstBookableDate()
   const [params, meetingBookings, checkinCount, leaderboard, allTimeLeaderboard, trueAdmin] =
     await Promise.all([
       searchParams,

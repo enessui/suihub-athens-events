@@ -177,7 +177,7 @@ export default async function CoworkingPage() {
               <span>
                 <span className="block font-semibold">Need a private space?</span>
                 <span className="text-sm text-muted-foreground">
-                  Book the meeting room on the 3rd floor in two-hour blocks.
+                  Request the 3rd floor meeting room for as long as you need it.
                 </span>
               </span>
             </span>

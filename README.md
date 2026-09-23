@@ -11,7 +11,7 @@ All event and space times are shown in a single fixed timezone, **Europe/Athens*
 - **Events calendar** — public listing of events, with categories, cover images, and registration links. Admins can create/edit events or import them from a Luma or Meetup link.
 - **Coworking check-in** — visitors check in on arrival; a live count and a builder leaderboard (first names only) are shown.
 - **Free coworking registration** — one-time signup with optional newsletter opt-in.
-- **Meeting-room booking** — book the private meeting room in two-hour slots.
+- **Meeting-room booking** — request the private meeting room on any weekday, for a chosen length of time; an admin approves each request (they're emailed when one comes in).
 - **Event requests** — the public can request to host an event.
 - **Gallery** — curated photos, with a public "submit your photos" flow (emailed to the team for review).
 - **Newsletter** — email signup.
@@ -78,7 +78,8 @@ Create a `.env.local` in the project root (it is gitignored — never commit it)
 | Variable | Description | If missing |
 |---|---|---|
 | `RESEND_API_KEY` | Sends admin notification emails | No emails are sent |
-| `ADMIN_NOTIFY_EMAIL` | Recipient for notifications | Falls back to `suihubathens@sui.io` |
+| `ADMIN_NOTIFY_EMAIL` | Recipient(s) for admin notifications, incl. meeting room requests. Comma-separate several | Falls back to `suihubathens@sui.io` |
+| `RESEND_FROM` | Sender address on a domain verified in Resend, e.g. `SuiHub Athens <hello@yourdomain>`. Needed to email coworkers when their meeting room request is approved or declined | Resend's shared test sender, which can only deliver to the Resend account's own address |
 | `GOOGLE_SHEETS_WEBHOOK_URL` | Mirrors signups to a Google Sheet | Skipped |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key | Captcha widget not shown |
 | `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret | **Captcha fails open** — bot protection is disabled |

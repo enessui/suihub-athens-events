@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { EventFormDialog } from './event-form-dialog'
+import { MeetingRequests } from './meeting-requests'
 import {
   deleteEvent,
   inviteAdmin,
@@ -29,15 +30,18 @@ import {
   formatEventTime,
   type EventRow,
 } from '@/lib/events'
+import type { MeetingBooking } from '@/lib/meeting-room'
 
 export function AdminDashboard({
   events,
   userEmail,
   admins,
+  meetingRequests,
 }: {
   events: EventRow[]
   userEmail: string
   admins: { email: string; created_at: string }[]
+  meetingRequests: MeetingBooking[]
 }) {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<EventRow | null>(null)
@@ -114,6 +118,8 @@ export function AdminDashboard({
       </header>
 
       <div className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-10">
+        <MeetingRequests requests={meetingRequests} />
+
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Events</h1>
