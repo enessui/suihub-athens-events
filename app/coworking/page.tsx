@@ -5,9 +5,11 @@ import { SiteHeader } from '@/components/site-header'
 import { CoworkingClient } from '@/components/coworking/coworking-client'
 import { OpenStatus } from '@/components/coworking/open-status'
 import { NewsletterSignup } from '@/components/coworking/newsletter-signup'
-import { getCoworkingCached, getMemberCountCached, getTodayCountCached, getEventsCached } from '@/lib/site-content'
+import { OriginsMap } from '@/components/coworking/origins-map'
+import { getCoworkingCached, getMemberCountCached, getTodayCountCached, getEventsCached, getOriginsCached } from '@/lib/site-content'
 import { getTodayCount } from '@/app/checkin/actions'
 import { DEFAULT_COWORKING } from '@/lib/coworking'
+import { DEFAULT_ORIGINS } from '@/lib/coworker-origins'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
 import { safe, isAdminSafe } from '@/lib/supabase/safe'
 import { createClient } from '@/lib/supabase/server'
@@ -25,12 +27,13 @@ function athensToday(): string {
 }
 
 export default async function CoworkingPage() {
-  const [content, trueAdmin, checkinCount, memberCount, events] = await Promise.all([
+  const [content, trueAdmin, checkinCount, memberCount, events, origins] = await Promise.all([
     safe(getCoworkingCached, DEFAULT_COWORKING),
     isAdminSafe(),
     safe(getTodayCountCached, 0),
     safe(getMemberCountCached, 0),
     safe(getEventsCached, [] as EventRow[]),
+    safe(getOriginsCached, DEFAULT_ORIGINS),
   ])
 
   const isAdmin = await getEffectiveIsAdmin(trueAdmin)
@@ -161,6 +164,8 @@ export default async function CoworkingPage() {
           </div>
 
           <CoworkingClient content={content} isAdmin={isAdmin} />
+
+          <OriginsMap content={origins} isAdmin={isAdmin} />
 
           {/* Need a private space? */}
           <Link

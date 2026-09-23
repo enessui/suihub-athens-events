@@ -13,6 +13,7 @@ import { DEFAULT_ANNOUNCEMENT, type AnnouncementContent } from '@/lib/announceme
 import { DEFAULT_ABOUT, type AboutContent } from '@/lib/about'
 import { DEFAULT_COWORKING, type CoworkingContent } from '@/lib/coworking'
 import { DEFAULT_GUIDELINES, type GuidelinesContent } from '@/lib/guidelines'
+import { DEFAULT_ORIGINS, normalizeOrigins, type OriginsContent } from '@/lib/coworker-origins'
 
 /**
  * Editable site content lives in `site_settings` and changes rarely, but was
@@ -81,6 +82,20 @@ export const getCoworkingCached = unstable_cache(
     }
   },
   ['site-content:coworking'],
+  { tags: [SITE_CONTENT_TAG], revalidate: TTL },
+)
+
+export const getOriginsCached = unstable_cache(
+  async (): Promise<OriginsContent> => {
+    const value = await readSetting('coworker_origins')
+    if (!value) return DEFAULT_ORIGINS
+    try {
+      return normalizeOrigins(JSON.parse(value as string))
+    } catch {
+      return DEFAULT_ORIGINS
+    }
+  },
+  ['site-content:coworker-origins'],
   { tags: [SITE_CONTENT_TAG], revalidate: TTL },
 )
 
