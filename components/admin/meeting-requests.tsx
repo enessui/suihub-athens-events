@@ -26,7 +26,7 @@ export function MeetingRequests({ requests }: { requests: MeetingBooking[] }) {
     <section id="meeting-requests" className="mb-10 scroll-mt-6">
       <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold tracking-tight">
         <DoorOpen className="size-5 text-primary" />
-        Meeting room requests
+        Launchpad requests
         {requests.length > 0 && (
           <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-800">
             {requests.length}

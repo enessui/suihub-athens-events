@@ -123,10 +123,10 @@ export async function requestMeetingRoom(input: {
   }
 
   await notifyAdmin(
-    `Meeting room request: ${name}, ${formatDay(date)} ${formatRange(start, end)}`,
+    `Launchpad request: ${name}, ${formatDay(date)} ${formatRange(start, end)}`,
     emailShell(
-      'Meeting room request',
-      'Someone wants the 3rd floor meeting room. It stays on hold until you approve or decline it.',
+      'Launchpad request',
+      'Someone wants The Launchpad, the meeting room on the 3rd floor. It stays on hold until you approve or decline it.',
       emailRow('When', `${formatDay(date)}, ${formatRange(start, end)} (${formatDuration(duration)})`) +
         emailRow('Name', name) +
         emailLinkRow('Email', `mailto:${email}`, email) +
@@ -166,13 +166,13 @@ export async function decideMeetingRequest(
   await sendEmail(
     b.email,
     decision === 'approved'
-      ? `Meeting room confirmed: ${when}`
-      : `Meeting room request declined: ${when}`,
+      ? `Launchpad booking confirmed: ${when}`
+      : `Launchpad request declined: ${when}`,
     emailShell(
-      decision === 'approved' ? 'Your meeting room booking is confirmed' : 'Your meeting room request was declined',
+      decision === 'approved' ? 'Your Launchpad booking is confirmed' : 'Your Launchpad request was declined',
       decision === 'approved'
-        ? 'The 3rd floor meeting room at SuiHub Athens is yours for this time.'
-        : 'Sorry, the room isn’t available for this request. Feel free to pick another time.',
+        ? 'The Launchpad, our meeting room on the 3rd floor of SuiHub Athens, is yours for this time.'
+        : 'Sorry, The Launchpad isn’t available for this request. Feel free to pick another time.',
       emailRow('When', when) + emailRow('Topic', b.topic ?? ''),
     ),
   )

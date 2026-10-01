@@ -10,8 +10,8 @@ import { safe, isAdminSafe } from '@/lib/supabase/safe'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Meeting Room · SuiHub Athens',
-  description: 'Book the private meeting room at SuiHub Athens.',
+  title: 'The Launchpad · SuiHub Athens',
+  description: 'Book The Launchpad, the private meeting room at SuiHub Athens.',
 }
 
 export default async function MeetingRoomPage() {
@@ -37,9 +37,9 @@ export default async function MeetingRoomPage() {
           </Link>
 
           <div className="mb-10">
-            <h1 className="text-4xl font-bold tracking-tight">Private Meeting Room</h1>
+            <h1 className="text-4xl font-bold tracking-tight">The Launchpad</h1>
             <p className="mt-3 text-muted-foreground">
-              On the 3rd floor. Pick a weekday, a start time and how long you need it. An admin confirms each request.
+              Our private meeting room on the 3rd floor. Pick a weekday, a start time and how long you need it. An admin confirms each request.
             </p>
           </div>
 

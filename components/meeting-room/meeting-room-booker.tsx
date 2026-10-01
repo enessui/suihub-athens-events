@@ -327,7 +327,7 @@ export function MeetingRoomBooker({
               <CheckCircle2 className="size-10 text-primary" />
               <DialogTitle className="text-xl">Request sent</DialogTitle>
               <DialogDescription>
-                The room is on hold for you until the SuiHub team reviews it. You&apos;ll hear back by email.
+                The Launchpad is on hold for you until the SuiHub team reviews it. You&apos;ll hear back by email.
               </DialogDescription>
               <Button className="mt-2" onClick={() => setDialogOpen(false)}>
                 Done
@@ -336,7 +336,7 @@ export function MeetingRoomBooker({
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle>Request the meeting room</DialogTitle>
+                <DialogTitle>Request The Launchpad</DialogTitle>
                 <DialogDescription>
                   {formatDay(date)}
                   {chosenStart !== null && chosenEnd !== null && `, ${formatRange(chosenStart, chosenEnd)}`}.

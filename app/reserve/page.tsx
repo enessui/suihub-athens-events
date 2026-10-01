@@ -54,7 +54,7 @@ export default async function ReservePage({
             <h1 className="text-4xl font-bold tracking-tight">Plan your visit</h1>
             <p className="mt-3 text-muted-foreground">
               Free coworking, walk-ins always welcome. Check in when you arrive, and book
-              the private meeting room if you need one.
+              The Launchpad, our private meeting room, if you need one.
             </p>
           </div>
 

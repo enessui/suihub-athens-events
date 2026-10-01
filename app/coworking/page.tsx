@@ -148,7 +148,7 @@ export default async function CoworkingPage() {
           <div className="mb-10 grid grid-cols-3 gap-2">
             {[
               { src: '/hub/cowork-bar.jpg', alt: 'The bar, builders welcome' },
-              { src: '/hub/cowork-meeting.jpg', alt: 'Meeting room' },
+              { src: '/hub/cowork-meeting.jpg', alt: 'The Launchpad meeting room' },
               { src: '/hub/cowork-lobby.jpg', alt: 'Reception and lounge' },
             ].map((p) => (
               <div key={p.src} className="group relative aspect-square overflow-hidden rounded-xl border-2 border-primary/40 bg-muted">
@@ -177,7 +177,7 @@ export default async function CoworkingPage() {
               <span>
                 <span className="block font-semibold">Need a private space?</span>
                 <span className="text-sm text-muted-foreground">
-                  Request the 3rd floor meeting room for as long as you need it.
+                  Request The Launchpad, our 3rd floor meeting room, for as long as you need it.
                 </span>
               </span>
             </span>

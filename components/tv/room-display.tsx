@@ -93,7 +93,7 @@ export function RoomDisplay({
           <img src="/SuiHub_Symbol_Cloud.png" alt="SuiHub Athens" className="h-[4.5vmin] w-auto object-contain" />
           <div className="h-[3.5vmin] w-px bg-white/20" />
           <p className="whitespace-nowrap text-[2.2vmin] font-semibold uppercase tracking-[0.2em] text-white/75">
-            Meeting room · 3rd floor
+            The Launchpad · 3rd floor
           </p>
         </div>
         <div className="flex items-baseline gap-[2.67vmin]">

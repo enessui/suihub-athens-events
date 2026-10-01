@@ -11,8 +11,8 @@ All event and space times are shown in a single fixed timezone, **Europe/Athens*
 - **Events calendar** — public listing of events, with categories, cover images, and registration links. Admins can create/edit events or import them from a Luma or Meetup link.
 - **Coworking check-in** — visitors check in on arrival; a live count and a builder leaderboard (first names only) are shown.
 - **Free coworking registration** — one-time signup with optional newsletter opt-in.
-- **Meeting-room booking** — request the private meeting room on any weekday, for a chosen length of time; an admin approves each request (they're emailed when one comes in).
-- **TV displays** — full-screen pages for screens in the space: `/tv` cycles through upcoming events with sign-up QR codes, and `/tv/meeting-room` shows whether the meeting room is free right now plus the day's and coming days' bookings (times only, no names). Both refresh themselves.
+- **Meeting-room booking** — request The Launchpad, the private meeting room, on any weekday, for a chosen length of time; an admin approves each request (they're emailed when one comes in).
+- **TV displays** — full-screen pages for screens in the space: `/tv` cycles through upcoming events with sign-up QR codes, and `/tv/meeting-room` shows whether The Launchpad is free right now plus the day's and coming days' bookings (times only, no names). Both refresh themselves.
 - **Event requests** — the public can request to host an event.
 - **Gallery** — curated photos, with a public "submit your photos" flow (emailed to the team for review).
 - **Newsletter** — email signup.

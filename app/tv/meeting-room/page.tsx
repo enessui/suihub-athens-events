@@ -7,7 +7,7 @@ import { RoomDisplay, type RoomSlot } from '@/components/tv/room-display'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Meeting Room · SuiHub Athens',
+  title: 'The Launchpad · SuiHub Athens',
   robots: { index: false },
 }
 

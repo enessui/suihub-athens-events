@@ -46,7 +46,7 @@ export function ReserveClient({
             mode === 'meeting' ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          Meeting room (3rd floor)
+          The Launchpad (3rd floor)
         </button>
       </div>
 
