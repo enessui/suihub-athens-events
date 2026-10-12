@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, Users, UserCheck, CalendarDays, AlertTriangle, DoorOpen, MapPin } from 'lucide-react'
+import { ArrowLeft, UserCheck, CalendarDays, AlertTriangle, DoorOpen, MapPin } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { CoworkingClient } from '@/components/coworking/coworking-client'
 import { OpenStatus } from '@/components/coworking/open-status'
@@ -10,8 +10,7 @@ import { SpaceSwitcher, type Space } from '@/components/coworking/space-switcher
 import { MeetingRoomBooker } from '@/components/meeting-room/meeting-room-booker'
 import { getMeetingBookings } from '@/app/meeting-room/actions'
 import { firstBookableDate, type MeetingBooking } from '@/lib/meeting-room'
-import { getCoworkingCached, getMemberCountCached, getTodayCountCached, getEventsCached, getOriginsCached } from '@/lib/site-content'
-import { getTodayCount } from '@/app/checkin/actions'
+import { getCoworkingCached, getMemberCountCached, getEventsCached, getOriginsCached } from '@/lib/site-content'
 import { DEFAULT_COWORKING } from '@/lib/coworking'
 import { DEFAULT_ORIGINS } from '@/lib/coworker-origins'
 import { getEffectiveIsAdmin } from '@/lib/preview-mode'
@@ -49,10 +48,9 @@ export default async function CoworkingPage({ searchParams }: Props) {
 
   // Each tab loads only its own data.
   const lounge = space === 'lounge'
-  const [content, trueAdmin, checkinCount, memberCount, events, origins, bookings] = await Promise.all([
+  const [content, trueAdmin, memberCount, events, origins, bookings] = await Promise.all([
     lounge ? safe(getCoworkingCached, DEFAULT_COWORKING) : DEFAULT_COWORKING,
     isAdminSafe(),
-    lounge ? safe(getTodayCountCached, 0) : 0,
     lounge ? safe(getMemberCountCached, 0) : 0,
     lounge ? safe(getEventsCached, [] as EventRow[]) : ([] as EventRow[]),
     lounge ? safe(getOriginsCached, DEFAULT_ORIGINS) : DEFAULT_ORIGINS,
@@ -125,27 +123,15 @@ export default async function CoworkingPage({ searchParams }: Props) {
                 </p>
               </div>
 
-              {/* Live status + occupancy + check-in */}
+              {/* Live status + community size */}
               <div className="mb-8 flex flex-wrap items-center gap-3">
                 <OpenStatus />
-                <span className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 text-sm text-muted-foreground">
-                  <Users className="size-4 text-primary" />
-                  {checkinCount === 0
-                    ? 'Be the first to check in today'
-                    : `${checkinCount} ${checkinCount === 1 ? 'builder' : 'builders'} here today`}
-                </span>
                 {memberCount > 0 && (
                   <span className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 text-sm text-muted-foreground">
                     <UserCheck className="size-4 text-primary" />
                     {memberCount.toLocaleString()} registered
                   </span>
                 )}
-                <Link
-                  href="/reserve?checkin=1"
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
-                >
-                  Here today? Check in →
-                </Link>
               </div>
 
               {/* Closure notices */}

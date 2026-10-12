@@ -1,6 +1,6 @@
 # SuiHub Athens — Events & Coworking Calendar
 
-The web app for [SuiHub Athens](https://www.sui.io): a public events calendar, free coworking check-in and registration, meeting-room booking, a photo gallery, and an invite-only admin dashboard. Built with Next.js and Supabase, deployed on Vercel.
+The web app for [SuiHub Athens](https://www.sui.io): a public events calendar, a visitor guide, free coworking registration, meeting-room booking, a photo gallery, and an invite-only admin dashboard. Built with Next.js and Supabase, deployed on Vercel.
 
 All event and space times are shown in a single fixed timezone, **Europe/Athens**, so the calendar reads the same for every visitor.
 
@@ -9,7 +9,7 @@ All event and space times are shown in a single fixed timezone, **Europe/Athens*
 ## Features
 
 - **Events calendar** — public listing of events, with categories, cover images, and registration links. Admins can create/edit events or import them from a Luma or Meetup link.
-- **Coworking check-in** — visitors check in on arrival; a live count and a builder leaderboard (first names only) are shown.
+- **Visitor guide** (`/reserve`, "Visit us") — how to find the building, opening hours, what's on each floor and what you can do there, illustrated with photos from the gallery (copied into `public/visit/`).
 - **Free coworking registration** — one-time signup with optional newsletter opt-in.
 - **Meeting-room booking** — request The Launchpad, the private meeting room, on any weekday, for a chosen length of time; an admin approves each request (they're emailed when one comes in).
 - **TV displays** — full-screen pages for screens in the space: `/tv` cycles through upcoming events with sign-up QR codes, and `/tv/meeting-room` shows whether The Launchpad is free right now plus the day's and coming days' bookings (times only, no names). Both refresh themselves.
@@ -101,9 +101,9 @@ The admin dashboard is **invite-only**.
 
 ## Security & privacy model
 
-- **Personal data is admin-only.** Booker/check-in/registration emails are never exposed to the public. The tables holding them (`coworking_members`, `coworking_checkins`, `newsletter_subscribers`, `meeting_room_bookings`) have Row-Level Security enabled and deny the public anon role; the server reads them through the service-role client. For non-admins, names/emails are stripped server-side before any data reaches the browser, so they never appear in the page payload.
+- **Personal data is admin-only.** Booker/check-in/registration emails are never exposed to the public. The tables holding them (`coworking_members`, `coworking_checkins` (kept from the retired check-in feature), `newsletter_subscribers`, `meeting_room_bookings`) have Row-Level Security enabled and deny the public anon role; the server reads them through the service-role client. For non-admins, names/emails are stripped server-side before any data reaches the browser, so they never appear in the page payload.
 - **Row-Level Security is load-bearing.** The anon key ships in the browser by design, so RLS is what protects the data. Keep PII tables locked (RLS on, no public policies) and only expose genuinely public content (`events`, `gallery_images`, `site_settings`) for public read. `event_requests` allows public INSERT but not SELECT.
-- **Bot protection.** Public write endpoints (check-in, registration, event request, newsletter, gallery submission, meeting-room booking) require a Cloudflare Turnstile token, verified server-side.
+- **Bot protection.** Public write endpoints (registration, event request, newsletter, gallery submission, meeting-room booking) require a Cloudflare Turnstile token, verified server-side.
 - **Security headers.** A Content-Security-Policy and standard hardening headers (HSTS, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`) are set in `next.config.mjs`.
 - **Secrets.** The service-role key is server-only and never shipped to the client. `.env.local` is gitignored.
 
@@ -136,7 +136,8 @@ For a one-off manual deploy: `npx vercel --prod` (uses the environment variables
 app/                    App Router routes + Server Actions (co-located actions.ts)
   admin/                Admin dashboard, analytics, event actions, Luma/Meetup import
   auth/                 Login / invite-only signup
-  checkin/ coworking/   Check-in, registration, meeting-room, reserve flows
+  coworking/ reserve/   Coworking Lounge + The Launchpad tabs, registration, visitor guide
+  meeting-room/         Launchpad booking actions (request, approve, decline)
   events/ gallery/ …    Public pages
 components/             UI components (calendar, admin, coworking, gallery, ui/)
 lib/                    Content defaults, Supabase clients, Turnstile, notify, events helpers

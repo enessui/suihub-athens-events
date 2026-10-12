@@ -64,8 +64,8 @@ export function SiteFooter() {
           <p className="font-semibold uppercase tracking-wide text-white/80">Explore</p>
           <Link href="/" className="text-white/60 hover:text-white">About</Link>
           <Link href="/events" className="text-white/60 hover:text-white">Events calendar</Link>
-          <Link href="/reserve?checkin=1" className="text-white/60 hover:text-white">Check in / Visit</Link>
-          <Link href="/reserve?meeting=1" className="text-white/60 hover:text-white">The Launchpad meeting room</Link>
+          <Link href="/reserve" className="text-white/60 hover:text-white">Visit us</Link>
+          <Link href="/coworking?space=launchpad" className="text-white/60 hover:text-white">The Launchpad meeting room</Link>
           <Link href="/coworking" className="text-white/60 hover:text-white">Coworking</Link>
           <Link href="/guidelines" className="text-white/60 hover:text-white">Guidelines</Link>
           <Link href="/gallery" className="text-white/60 hover:text-white">Gallery</Link>
