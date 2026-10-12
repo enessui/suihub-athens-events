@@ -8,6 +8,7 @@ import { DEFAULT_ABOUT, type AboutContent } from '@/lib/about'
 import { DEFAULT_COWORKING, type CoworkingContent } from '@/lib/coworking'
 import { DEFAULT_GUIDELINES, type GuidelinesContent } from '@/lib/guidelines'
 import { DEFAULT_ORIGINS, normalizeOrigins, type OriginsContent } from '@/lib/coworker-origins'
+import { DEFAULT_VISIT_GUIDE, normalizeVisitGuide, type VisitGuide } from '@/lib/visit-guide'
 
 /**
  * Editable site content lives in `site_settings` and changes rarely, but was
@@ -90,6 +91,20 @@ export const getOriginsCached = unstable_cache(
     }
   },
   ['site-content:coworker-origins'],
+  { tags: [SITE_CONTENT_TAG], revalidate: TTL },
+)
+
+export const getVisitGuideCached = unstable_cache(
+  async (): Promise<VisitGuide> => {
+    const value = await readSetting('visit_guide')
+    if (!value) return DEFAULT_VISIT_GUIDE
+    try {
+      return normalizeVisitGuide(JSON.parse(value as string))
+    } catch {
+      return DEFAULT_VISIT_GUIDE
+    }
+  },
+  ['site-content:visit-guide'],
   { tags: [SITE_CONTENT_TAG], revalidate: TTL },
 )
 
