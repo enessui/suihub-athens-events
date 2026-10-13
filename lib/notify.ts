@@ -10,8 +10,12 @@ const ADMIN_EMAILS = (process.env.ADMIN_NOTIFY_EMAIL || 'suihubathens@sui.io')
 // Resend's shared onboarding sender can only deliver to the Resend account's
 // own address. To email anyone else (a coworker whose booking was approved,
 // or several admins), verify a domain in Resend and set RESEND_FROM, e.g.
-// "SuiHub Athens <hello@suihubathens.com>".
+// "SuiHub Athens <bookings@suihubathens.io>".
 const FROM = process.env.RESEND_FROM || 'SuiHub Athens <onboarding@resend.dev>'
+
+// The sending address has no inbox, so replies go to the team instead. Having
+// a real reply path also counts in the email's favour with spam filters.
+const REPLY_TO = process.env.REPLY_TO_EMAIL || 'suihubathens@sui.io'
 
 /**
  * Send an email. Best-effort: if RESEND_API_KEY is unset or the send fails, it
@@ -21,10 +25,36 @@ export async function sendEmail(to: string | string[], subject: string, html: st
   if (!process.env.RESEND_API_KEY) return
   try {
     const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send({ from: FROM, to, subject, html })
+    // A plain-text part alongside the HTML: HTML-only mail scores worse with
+    // spam filters, and some mail apps show the text version.
+    await resend.emails.send({ from: FROM, to, replyTo: REPLY_TO, subject, html, text: htmlToText(html) })
   } catch {
     // Sending failed; whatever triggered it was already saved.
   }
+}
+
+/** A readable plain-text version of one of our HTML emails. Links keep their URL. */
+export function htmlToText(html: string): string {
+  return html
+    .replace(/<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href: string, label: string) => {
+      const text = label.replace(/<[^>]+>/g, '').trim()
+      const url = href.replace(/^mailto:/i, '')
+      return text === url ? text : `${text}: ${href}`
+    })
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/td>\s*<td[^>]*>/gi, ': ')
+    .replace(/<\/(?:p|h[1-6]|tr|div|table)>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/ *\n */g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 /** Email the admin inbox. */
