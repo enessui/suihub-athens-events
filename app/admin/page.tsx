@@ -4,6 +4,7 @@ import { AdminDashboard } from '@/components/admin/admin-dashboard'
 import { isAdminUnlocked } from '@/lib/admin-pin'
 import type { EventRow } from '@/lib/events'
 import { getPendingMeetingRequests } from '@/app/meeting-room/actions'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,6 +38,12 @@ export default async function AdminPage() {
     getPendingMeetingRequests(),
   ])
 
+  // For the badge on "Event requests". Zero if the count can't be read.
+  const { count: pendingEventRequests } = await createAdminClient()
+    .from('event_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending')
+
   const events = (eventData ?? []) as EventRow[]
   const admins = (adminData ?? []) as { email: string; created_at: string }[]
 
@@ -46,6 +53,7 @@ export default async function AdminPage() {
       userEmail={user.email ?? ''}
       admins={admins}
       meetingRequests={meetingRequests}
+      pendingEventRequests={pendingEventRequests ?? 0}
     />
   )
 }

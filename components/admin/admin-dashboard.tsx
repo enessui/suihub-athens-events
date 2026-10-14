@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BarChart3, CalendarDays, Pencil, Plus, ShieldCheck, Trash2, UserPlus, X } from 'lucide-react'
+import { BarChart3, CalendarDays, Inbox, Pencil, Plus, ShieldCheck, Trash2, UserPlus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -37,11 +37,13 @@ export function AdminDashboard({
   userEmail,
   admins,
   meetingRequests,
+  pendingEventRequests,
 }: {
   events: EventRow[]
   userEmail: string
   admins: { email: string; created_at: string }[]
   meetingRequests: MeetingBooking[]
+  pendingEventRequests: number
 }) {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<EventRow | null>(null)
@@ -91,6 +93,20 @@ export function AdminDashboard({
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <Button
+              render={<Link href="/admin/requests" />}
+              nativeButton={false}
+              variant="ghost"
+              size="sm"
+            >
+              <Inbox className="size-4" />
+              Event requests
+              {pendingEventRequests > 0 && (
+                <span className="rounded-full bg-amber-500/15 px-1.5 text-xs font-semibold text-amber-800">
+                  {pendingEventRequests}
+                </span>
+              )}
+            </Button>
             <Button
               render={<Link href="/admin/analytics" />}
               nativeButton={false}

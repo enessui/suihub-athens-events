@@ -15,19 +15,6 @@ export type MemberRow = {
   created_at: string
 }
 
-export type EventRequestRow = {
-  id: string
-  title: string
-  category: string | null
-  preferred_date: string | null
-  estimated_attendance: string | null
-  description: string | null
-  host_name: string
-  host_email: string
-  registration_link: string | null
-  created_at: string
-}
-
 export type SubscriberRow = {
   id: string
   email: string
@@ -48,16 +35,10 @@ export default async function AnalyticsPage() {
 
   // Verified admin — use the service-role client to read the private tables.
   const admin = createAdminClient()
-  const [members, requests, subscribers] = await Promise.all([
+  const [members, subscribers] = await Promise.all([
     admin
       .from('coworking_members')
       .select('id, name, email, telegram, building, created_at')
-      .order('created_at', { ascending: false }),
-    admin
-      .from('event_requests')
-      .select(
-        'id, title, category, preferred_date, estimated_attendance, description, host_name, host_email, registration_link, created_at',
-      )
       .order('created_at', { ascending: false }),
     admin
       .from('newsletter_subscribers')
@@ -69,7 +50,6 @@ export default async function AnalyticsPage() {
     <AnalyticsClient
       userEmail={user.email ?? ''}
       members={(members.data ?? []) as MemberRow[]}
-      requests={(requests.data ?? []) as EventRequestRow[]}
       subscribers={(subscribers.data ?? []) as SubscriberRow[]}
     />
   )

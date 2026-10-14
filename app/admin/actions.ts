@@ -3,6 +3,7 @@
 import { revalidatePath, updateTag } from 'next/cache'
 import { EVENTS_TAG } from '@/lib/cache-tags'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { spaceInputToUtc } from '@/lib/events'
 
 type ActionResult = { error?: string }
@@ -65,11 +66,13 @@ function parseForm(formData: FormData) {
   }
 }
 
-export async function createEvent(formData: FormData): Promise<ActionResult> {
-  const supabase = await createClient()
-  const auth = await requireAdmin(supabase)
-  if ('error' in auth) return { error: auth.error }
-
+// Shared by "New event" and approving an event request, so both create
+// events the same way (validation, image upload, Athens time conversion).
+async function insertEvent(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  formData: FormData,
+): Promise<{ id: string } | { error: string }> {
   const fields = parseForm(formData)
   if (!fields.title || !fields.start_time) {
     return { error: 'Title and start time are required.' }
@@ -83,19 +86,125 @@ export async function createEvent(formData: FormData): Promise<ActionResult> {
     // Uploaded file wins; otherwise use an imported (Luma/Meetup) cover if present.
     const importedImageUrl = ((formData.get('imported_image_url') as string) || '').trim() || null
     const imageUrl = uploaded ?? importedImageUrl
-    const { error } = await supabase.from('events').insert({
-      ...fields,
-      image_url: imageUrl,
-      created_by: auth.userId,
-    })
+    const { data, error } = await supabase
+      .from('events')
+      .insert({
+        ...fields,
+        image_url: imageUrl,
+        created_by: userId,
+      })
+      .select('id')
+      .single()
     if (error) return { error: error.message }
+    return { id: data.id as string }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Unknown error' }
   }
+}
 
+function revalidateEvents() {
   revalidatePath('/')
   updateTag(EVENTS_TAG)
   revalidatePath('/admin')
+}
+
+export async function createEvent(formData: FormData): Promise<ActionResult> {
+  const supabase = await createClient()
+  const auth = await requireAdmin(supabase)
+  if ('error' in auth) return { error: auth.error }
+
+  const result = await insertEvent(supabase, auth.userId, formData)
+  if ('error' in result) return { error: result.error }
+
+  revalidateEvents()
+  return {}
+}
+
+// ---------- Event requests ----------
+
+function revalidateRequests() {
+  revalidatePath('/admin/requests')
+  revalidatePath('/admin')
+}
+
+/**
+ * Approve a request by publishing it: the admin has reviewed the pre-filled
+ * event form, and this creates that event and links it to the request.
+ */
+export async function approveEventRequest(
+  requestId: string,
+  formData: FormData,
+): Promise<ActionResult> {
+  const supabase = await createClient()
+  const auth = await requireAdmin(supabase)
+  if ('error' in auth) return { error: auth.error }
+
+  // event_requests is locked to the public by RLS, so writes go through the
+  // service role after the admin check above.
+  const admin = createAdminClient()
+
+  // Claim the request first, so two admins approving at once can't create the
+  // event twice: only one of them moves it out of 'pending'.
+  const { data: claimed, error: claimError } = await admin
+    .from('event_requests')
+    .update({ status: 'approved', decided_at: new Date().toISOString() })
+    .eq('id', requestId)
+    .eq('status', 'pending')
+    .select('id')
+    .maybeSingle()
+  if (claimError) return { error: claimError.message }
+  if (!claimed) return { error: 'That request was already handled.' }
+
+  const result = await insertEvent(supabase, auth.userId, formData)
+  if ('error' in result) {
+    // Couldn't publish: put the request back in the queue.
+    await admin
+      .from('event_requests')
+      .update({ status: 'pending', decided_at: null })
+      .eq('id', requestId)
+    return { error: result.error }
+  }
+
+  await admin.from('event_requests').update({ event_id: result.id }).eq('id', requestId)
+
+  revalidateEvents()
+  revalidateRequests()
+  return {}
+}
+
+export async function declineEventRequest(requestId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const auth = await requireAdmin(supabase)
+  if ('error' in auth) return { error: auth.error }
+
+  const { data, error } = await createAdminClient()
+    .from('event_requests')
+    .update({ status: 'declined', decided_at: new Date().toISOString() })
+    .eq('id', requestId)
+    .eq('status', 'pending')
+    .select('id')
+    .maybeSingle()
+  if (error) return { error: error.message }
+  if (!data) return { error: 'That request was already handled.' }
+
+  revalidateRequests()
+  return {}
+}
+
+/** Undo a decline: back to pending. */
+export async function reopenEventRequest(requestId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const auth = await requireAdmin(supabase)
+  if ('error' in auth) return { error: auth.error }
+
+  const { error } = await createAdminClient()
+    .from('event_requests')
+    .update({ status: 'pending', decided_at: null })
+    .eq('id', requestId)
+    .eq('status', 'declined')
+  if (error) return { error: error.message }
+
+  revalidateRequests()
   return {}
 }
 
@@ -135,9 +244,7 @@ export async function updateEvent(
     return { error: e instanceof Error ? e.message : 'Unknown error' }
   }
 
-  revalidatePath('/')
-  updateTag(EVENTS_TAG)
-  revalidatePath('/admin')
+  revalidateEvents()
   return {}
 }
 
@@ -149,9 +256,7 @@ export async function deleteEvent(id: string): Promise<ActionResult> {
   const { error } = await supabase.from('events').delete().eq('id', id)
   if (error) return { error: error.message }
 
-  revalidatePath('/')
-  updateTag(EVENTS_TAG)
-  revalidatePath('/admin')
+  revalidateEvents()
   return {}
 }
 

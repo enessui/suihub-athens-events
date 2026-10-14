@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { createEvent, updateEvent } from '@/app/admin/actions'
+import { approveEventRequest, createEvent, updateEvent } from '@/app/admin/actions'
 import { importEventFromUrl } from '@/app/admin/import-event'
 import {
   EVENT_CATEGORIES,
@@ -37,17 +37,28 @@ export function EventFormDialog({
   onOpenChange,
   event,
   defaultDate,
+  prefill,
+  fromRequestId,
+  startNote,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   event?: EventRow | null
   defaultDate?: string
+  /** Starting values for a new event, e.g. taken from an event request. */
+  prefill?: Partial<EventRow>
+  /** Saving approves this event request and publishes the event. */
+  fromRequestId?: string
+  /** Hint shown under the start time. */
+  startNote?: string
 }) {
   const isEdit = !!event
-  const [category, setCategory] = useState(event?.category ?? 'Workshop')
+  // Where the fields start: the event being edited, otherwise any prefill.
+  const initial = event ?? prefill
+  const [category, setCategory] = useState(initial?.category ?? 'Workshop')
   const [registrationType, setRegistrationType] = useState<
     'open' | 'invite-only'
-  >(isInviteOnly(event?.registration_link ?? null) ? 'invite-only' : 'open')
+  >(isInviteOnly(initial?.registration_link ?? null) ? 'invite-only' : 'open')
   const [isPending, startTransition] = useTransition()
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
@@ -98,12 +109,16 @@ export function EventFormDialog({
     startTransition(async () => {
       const result = isEdit
         ? await updateEvent(event!.id, formData)
-        : await createEvent(formData)
+        : fromRequestId
+          ? await approveEventRequest(fromRequestId, formData)
+          : await createEvent(formData)
       if (result?.error) {
         toast.error(result.error)
         return
       }
-      toast.success(isEdit ? 'Event updated' : 'Event created')
+      toast.success(
+        isEdit ? 'Event updated' : fromRequestId ? 'Approved and added to the calendar' : 'Event created',
+      )
       onOpenChange(false)
     })
   }
@@ -112,11 +127,15 @@ export function EventFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit event' : 'New event'}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? 'Edit event' : fromRequestId ? 'Approve event request' : 'New event'}
+          </DialogTitle>
           <DialogDescription>
             {isEdit
               ? 'Update the details for this event.'
-              : 'Add an event to the coworking calendar.'}
+              : fromRequestId
+                ? 'Filled in from the request. Check the details and the time, then publish it to the calendar.'
+                : 'Add an event to the coworking calendar.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -161,7 +180,7 @@ export function EventFormDialog({
               id="title"
               name="title"
               required
-              defaultValue={event?.title ?? ''}
+              defaultValue={initial?.title ?? ''}
               placeholder="Intro to UX Research"
             />
           </div>
@@ -192,6 +211,7 @@ export function EventFormDialog({
                 required
                 defaultValue={utcToSpaceInput(event?.start_time ?? null) || defaultDate || ''}
               />
+              {startNote && <p className="text-xs text-amber-700">{startNote}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="end_time">Ends (optional)</Label>
@@ -210,7 +230,7 @@ export function EventFormDialog({
               <Input
                 id="room"
                 name="room"
-                defaultValue={event?.room ?? ''}
+                defaultValue={initial?.room ?? ''}
                 placeholder="The Loft"
               />
             </div>
@@ -219,7 +239,7 @@ export function EventFormDialog({
               <Input
                 id="host"
                 name="host"
-                defaultValue={event?.host ?? ''}
+                defaultValue={initial?.host ?? ''}
                 placeholder="Jane Doe"
               />
             </div>
@@ -230,7 +250,7 @@ export function EventFormDialog({
             <Input
               id="industry"
               name="industry"
-              defaultValue={event?.industry ?? ''}
+              defaultValue={initial?.industry ?? ''}
               placeholder="e.g. Fintech, Healthcare, Web3"
             />
           </div>
@@ -255,7 +275,7 @@ export function EventFormDialog({
               <Input
                 type="url"
                 name="registration_link"
-                defaultValue={registrationUrl(event?.registration_link ?? null) ?? ''}
+                defaultValue={registrationUrl(initial?.registration_link ?? null) ?? ''}
                 placeholder="https://example.com/register"
                 aria-label="Registration link"
               />
@@ -268,7 +288,7 @@ export function EventFormDialog({
               id="description"
               name="description"
               rows={4}
-              defaultValue={event?.description ?? ''}
+              defaultValue={initial?.description ?? ''}
               placeholder="What is this event about?"
             />
           </div>
@@ -313,7 +333,7 @@ export function EventFormDialog({
               id="show_on_tv"
               name="show_on_tv"
               type="checkbox"
-              defaultChecked={event?.show_on_tv ?? true}
+              defaultChecked={initial?.show_on_tv ?? true}
               className="mt-0.5 size-4 shrink-0 rounded border-border accent-primary"
             />
             <span>
@@ -337,7 +357,9 @@ export function EventFormDialog({
                 ? 'Saving...'
                 : isEdit
                   ? 'Save changes'
-                  : 'Create event'}
+                  : fromRequestId
+                    ? 'Approve & publish'
+                    : 'Create event'}
             </Button>
           </DialogFooter>
         </form>
