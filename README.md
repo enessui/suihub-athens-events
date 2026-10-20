@@ -12,7 +12,7 @@ All event and space times are shown in a single fixed timezone, **Europe/Athens*
 - **Visitor guide** (`/reserve`, "Visit us") — how to find the building, opening hours, what's on each floor and what you can do there, illustrated with photos from the gallery (copied into `public/visit/`).
 - **Free coworking registration** — one-time signup with optional newsletter opt-in.
 - **Meeting-room booking** — request The Launchpad, the private meeting room, on any weekday, for a chosen length of time; an admin approves each request (they're emailed when one comes in).
-- **TV displays** — full-screen pages for screens in the space: `/tv` cycles through upcoming events with sign-up QR codes, and `/tv/meeting-room` shows whether The Launchpad is free right now plus the day's and coming days' bookings (times only, no names). Both refresh themselves.
+- **TV displays** — full-screen pages for screens in the space: `/tv` cycles through upcoming events with sign-up QR codes, `/tv/follow` invites people to follow @suihubathens on X with a large QR code, and `/tv/meeting-room` shows whether The Launchpad is free right now plus the day's and coming days' bookings (times only, no names). Both refresh themselves.
 - **Event requests** — the public can request to host an event.
 - **Gallery** — curated photos, with a public "submit your photos" flow (emailed to the team for review).
 - **Newsletter** — email signup.

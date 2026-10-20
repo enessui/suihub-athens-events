@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Clock, Mail, MapPin } from 'lucide-react'
 import { FooterNewsletter } from '@/components/footer-newsletter'
+import { X_HANDLE, X_URL } from '@/lib/social'
 
 export function SiteFooter() {
   return (
@@ -75,6 +76,14 @@ export function SiteFooter() {
         <div className="flex flex-col gap-3 text-sm">
           <p className="font-semibold uppercase tracking-wide text-white/80">SuiHub Athens</p>
           <a
+            href={X_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/60 hover:text-white"
+          >
+            X (@{X_HANDLE})
+          </a>
+          <a
             href="https://www.linkedin.com/company/suihub-athens/"
             target="_blank"
             rel="noopener noreferrer"
@@ -115,7 +124,7 @@ export function SiteFooter() {
             rel="noopener noreferrer"
             className="text-white/60 hover:text-white"
           >
-            X / Twitter
+            X (@SuiNetwork)
           </a>
           <a
             href="https://discord.gg/sui"
