@@ -10,7 +10,7 @@ const ROLE = {
   company: 'Mysten Labs',
   logo: '/brands/mysten-labs.png', // official mark (Mysten Labs' GitHub avatar)
   title: ['Software Engineer,', 'Partner Solutions'],
-  tags: ['Remote · Greece', 'TypeScript · React · Move', 'AI-native team'],
+  tags: ['Remote · Greece'],
   url: 'https://jobs.ashbyhq.com/mystenlabs/7a9c9bef-677d-4209-b305-276f31bba4d7',
 }
 
