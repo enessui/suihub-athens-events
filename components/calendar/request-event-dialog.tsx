@@ -28,9 +28,12 @@ import { EVENT_CATEGORIES } from '@/lib/events'
 export function RequestEventDialog({
   open,
   onOpenChange,
+  defaultDate,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  /** YYYY-MM-DD to start the "Preferred date" field on, e.g. the calendar day picked. */
+  defaultDate?: string
 }) {
   const [category, setCategory] = useState('Workshop')
   const [captchaToken, setCaptchaToken] = useState('')
@@ -104,7 +107,13 @@ export function RequestEventDialog({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="req-date">Preferred date</Label>
-              <Input id="req-date" name="preferred_date" type="date" />
+              <Input
+                id="req-date"
+                name="preferred_date"
+                type="date"
+                defaultValue={defaultDate}
+                min={new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Athens' })}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="req-attendance">Expected attendance</Label>

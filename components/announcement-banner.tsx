@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useLayoutEffect, useRef, useState, useTransition } from 'react'
 import { Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,9 @@ import {
 import { updateAnnouncement } from '@/app/announcement/actions'
 import { DEFAULT_ANNOUNCEMENT, type AnnouncementContent } from '@/lib/announcement'
 
+// How fast the banner scrolls, whatever the message length.
+const SPEED_PX_PER_S = 50
+
 export function AnnouncementBanner({
   content,
   isAdmin = false,
@@ -32,14 +35,53 @@ export function AnnouncementBanner({
   const [draft, setDraft] = useState(normalized)
   const [isPending, startTransition] = useTransition()
 
+  // The track holds the message group twice and slides left by half its width,
+  // then repeats. That only looks continuous if one group is at least as wide
+  // as the screen, so measure the message and repeat it as often as needed.
+  // Speed stays constant, and the position follows the wall clock so moving
+  // between pages doesn't send the banner back to the start.
+  const itemRef = useRef<HTMLSpanElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [ticker, setTicker] = useState<{ copies: number; duration: number } | null>(null)
+  const message = current.message
+
+  useLayoutEffect(() => {
+    const item = itemRef.current
+    if (!item) return
+    const fit = () => {
+      const width = item.getBoundingClientRect().width
+      if (!width) return
+      const banner = item.closest('a')?.clientWidth || window.innerWidth
+      const copies = Math.max(2, Math.ceil(banner / width) + 1)
+      const duration = (copies * width) / SPEED_PX_PER_S
+      setTicker((prev) => (prev?.copies === copies && prev.duration === duration ? prev : { copies, duration }))
+    }
+    fit()
+    // Re-fit when the message's width changes (the web font finishing loading)
+    // or the banner's does (window resize, zoom, rotation).
+    const observer = new ResizeObserver(fit)
+    observer.observe(item)
+    if (item.closest('a')) observer.observe(item.closest('a')!)
+    return () => observer.disconnect()
+  }, [message])
+
+  useLayoutEffect(() => {
+    if (!ticker) return
+    const animation = trackRef.current?.getAnimations()[0] // none with reduced motion
+    if (animation) animation.currentTime = Date.now() % (ticker.duration * 1000)
+  }, [ticker])
+
   // Hidden for visitors when disabled; admins still see it (dimmed) so they can re-enable.
   if (!current.enabled && !isAdmin) return null
 
-  const message = current.message
   const group = (
     <div className="flex flex-none items-center">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <span key={i} className="flex items-center whitespace-nowrap text-sm font-semibold tracking-wide">
+      {Array.from({ length: ticker?.copies ?? 12 }).map((_, i) => (
+        <span
+          key={i}
+          ref={i === 0 ? itemRef : undefined}
+          className="flex items-center whitespace-nowrap text-sm font-semibold tracking-wide"
+        >
           {message}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -83,7 +125,11 @@ export function AnnouncementBanner({
         style={{ backgroundColor: current.bgColor, color: current.textColor }}
         className="ticker-mask block overflow-hidden border-b border-white/15 py-2 hover:brightness-105"
       >
-        <div className="ticker-track">
+        <div
+          ref={trackRef}
+          className="ticker-track"
+          style={ticker ? { animationDuration: `${ticker.duration}s` } : undefined}
+        >
           {group}
           {group}
         </div>

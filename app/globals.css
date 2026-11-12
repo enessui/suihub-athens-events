@@ -209,3 +209,6 @@ h1, h2, h3 {
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(-50%, 0, 0); }
 }
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+}

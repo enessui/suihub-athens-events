@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useRef, useState, useTransition, useEffect, useCallback } from 'react'
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { EventDialog } from './event-dialog'
 import { EventFormDialog } from '@/components/admin/event-form-dialog'
+import { RequestEventDialog } from './request-event-dialog'
 import { deleteEvent } from '@/app/admin/actions'
 import {
   categoryStyle,
@@ -62,6 +63,8 @@ export function CalendarView({ events, isAdmin }: { events: EventRow[], isAdmin?
   const [editing, setEditing] = useState<EventRow | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [newEventDate, setNewEventDate] = useState<string | undefined>(undefined)
+  /** YYYY-MM-DD a visitor picked with a day's "+", which opens the request form on it. */
+  const [requestDate, setRequestDate] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<EventRow | null>(null)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [view, setView] = useState<'month' | 'week'>('month')
@@ -132,6 +135,13 @@ export function CalendarView({ events, isAdmin }: { events: EventRow[], isAdmin?
     [isWeek, cursor, year, month],
   )
   const todayKey = dayKey(today)
+
+  // Admin: open "New event" on a day (10:00 by default).
+  function addEventOn(key: string) {
+    setEditing(null)
+    setNewEventDate(`${key}T10:00`)
+    setFormOpen(true)
+  }
 
   // Header label + event count for the current view
   const periodLabel = isWeek
@@ -299,7 +309,7 @@ export function CalendarView({ events, isAdmin }: { events: EventRow[], isAdmin?
             return (
               <div
                 key={key}
-                className={`border-b border-r border-border p-1.5 last:border-r-0 [&:nth-child(7n)]:border-r-0 ${
+                className={`group border-b border-r border-border p-1.5 last:border-r-0 [&:nth-child(7n)]:border-r-0 ${
                   isWeek ? 'min-h-64 sm:min-h-96' : 'min-h-28 sm:min-h-36'
                 } ${
                   isPast && !isWeekend ? 'bg-chart-1/15' : isWeekend ? 'bg-muted/50' : inMonth ? 'bg-transparent' : 'bg-muted/30'
@@ -308,20 +318,25 @@ export function CalendarView({ events, isAdmin }: { events: EventRow[], isAdmin?
                   backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(0,0,0,0.04) 6px, rgba(0,0,0,0.04) 7px)'
                 } : undefined}
               >
-                <div className="mb-1 flex justify-end">
+                <div className="mb-1 flex items-center justify-between">
+                  {isPast ? (
+                    <span />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => (isAdmin ? addEventOn(key) : setRequestDate(key))}
+                      aria-label={`${isAdmin ? 'Add an event' : 'Request an event'} on ${day.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}`}
+                      title={isAdmin ? 'Add an event on this day' : 'Request an event on this day'}
+                      className="flex size-6 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:bg-primary hover:text-primary-foreground group-hover:text-primary focus-visible:bg-primary focus-visible:text-primary-foreground focus-visible:outline-none"
+                    >
+                      <Plus className="size-3.5" />
+                    </button>
+                  )}
                   {isAdmin ? (
                     <button
                       type="button"
                       title="Add event"
-                      onClick={() => {
-                        setEditing(null)
-                        const d = new Date(day)
-                        d.setHours(10, 0, 0, 0)
-                        const pad = (n: number) => String(n).padStart(2, '0')
-                        const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T10:00`
-                        setNewEventDate(dateStr)
-                        setFormOpen(true)
-                      }}
+                      onClick={() => addEventOn(key)}
                       className={`flex size-6 items-center justify-center rounded-full text-xs transition-colors hover:bg-primary hover:text-primary-foreground ${
                         isToday
                           ? 'bg-primary font-semibold text-primary-foreground'
@@ -443,6 +458,13 @@ export function CalendarView({ events, isAdmin }: { events: EventRow[], isAdmin?
           setSelected(null)
           setDeleting(ev)
         }}
+      />
+
+      <RequestEventDialog
+        key={requestDate ?? 'none'}
+        open={requestDate !== null}
+        onOpenChange={(open) => !open && setRequestDate(null)}
+        defaultDate={requestDate ?? undefined}
       />
 
       <EventFormDialog
