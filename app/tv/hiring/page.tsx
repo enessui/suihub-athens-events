@@ -8,6 +8,7 @@ export const metadata = {
 // The role on screen. Swap these to advertise a different opening.
 const ROLE = {
   company: 'Mysten Labs',
+  logo: '/brands/mysten-labs.png', // official mark (Mysten Labs' GitHub avatar)
   title: ['Software Engineer,', 'Partner Solutions'],
   tags: ['Remote · Greece', 'TypeScript · React · Move', 'AI-native team'],
   url: 'https://jobs.ashbyhq.com/mystenlabs/7a9c9bef-677d-4209-b305-276f31bba4d7',
@@ -104,7 +105,11 @@ export default async function HiringTvPage() {
             <br />
             {ROLE.title[1]}
           </p>
-          <p className="mt-[1.5vmin] text-[3vmin] font-medium text-white/60">at {ROLE.company}</p>
+          <p className="mt-[3vmin] flex items-center gap-[2vmin] portrait:justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={ROLE.logo} alt="" className="size-[7vmin] rounded-[1.6vmin] shadow-[0_0_4vmin_rgba(244,0,52,0.35)]" />
+            <span className="text-[4vmin] font-semibold">{ROLE.company}</span>
+          </p>
           <ul className="mt-[4.5vmin] flex flex-wrap gap-[1.4vmin] portrait:justify-center">
             {ROLE.tags.map((tag) => (
               <li key={tag} className="whitespace-nowrap rounded-full bg-white/10 px-[2.2vmin] py-[1.1vmin] text-[2.3vmin] font-medium text-white/90">
