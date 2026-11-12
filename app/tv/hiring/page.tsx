@@ -40,7 +40,7 @@ const CSS = `
   }
   @keyframes tvPulse {
     0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
-    70%, 100% { box-shadow: 0 0 0 1.6vmin rgba(52, 211, 153, 0); }
+    70%, 100% { box-shadow: 0 0 0 2.6vmin rgba(52, 211, 153, 0); }
   }
   @keyframes tvShine { 0% { background-position: 200% 0; } 60%, 100% { background-position: -100% 0; } }
 
@@ -93,16 +93,19 @@ export default async function HiringTvPage() {
 
       <main className="relative grid min-h-0 flex-1 grid-cols-[1.3fr_1fr] items-center gap-[6vmin] px-[8vmin] portrait:grid-cols-1 portrait:content-center portrait:justify-items-center portrait:text-center">
         <section>
-          <p className="inline-flex items-center gap-[1.5vmin] rounded-full border border-white/15 bg-white/5 px-[2.4vmin] py-[1.2vmin] text-[2.6vmin] font-semibold">
-            <span className="tv-live size-[1.6vmin] rounded-full bg-[#34D399]" />
-            {ROLE.company} is hiring
-          </p>
-          <h1 className="mt-[4vmin] text-[9.5vmin] font-bold leading-[1.02] tracking-tight">
+          <h1 className="flex items-center gap-[3vmin] whitespace-nowrap text-[14vmin] font-bold leading-none tracking-tight portrait:justify-center portrait:text-[11vmin]">
+            <span className="tv-live size-[3.2vmin] shrink-0 rounded-full bg-[#34D399]" aria-hidden />
+            <span>
+              We&apos;re <span className="tv-shine">hiring</span>
+            </span>
+          </h1>
+          <p className="mt-[4.5vmin] text-[5.4vmin] font-semibold leading-tight text-white/95">
             {ROLE.title[0]}
             <br />
-            <span className="tv-shine">{ROLE.title[1]}</span>
-          </h1>
-          <ul className="mt-[5vmin] flex flex-wrap gap-[1.4vmin] portrait:justify-center">
+            {ROLE.title[1]}
+          </p>
+          <p className="mt-[1.5vmin] text-[3vmin] font-medium text-white/60">at {ROLE.company}</p>
+          <ul className="mt-[4.5vmin] flex flex-wrap gap-[1.4vmin] portrait:justify-center">
             {ROLE.tags.map((tag) => (
               <li key={tag} className="whitespace-nowrap rounded-full bg-white/10 px-[2.2vmin] py-[1.1vmin] text-[2.3vmin] font-medium text-white/90">
                 {tag}
