@@ -51,7 +51,7 @@ const CSS = `
   .tv-card { animation: tvFloat 6s ease-in-out infinite, tvGlow 4s ease-in-out infinite; }
   .tv-live { animation: tvPulse 2s ease-out infinite; }
   .tv-shine {
-    background: linear-gradient(100deg, #4DA2FF 40%, #C0E6FF 50%, #4DA2FF 60%) 0 0 / 200% 100%;
+    background: linear-gradient(100deg, #F50032 40%, #FF7A96 50%, #F50032 60%) 0 0 / 200% 100%;
     -webkit-background-clip: text; background-clip: text; color: transparent;
     animation: tvShine 6s ease-in-out infinite;
   }
